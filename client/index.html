@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>jrnl Interface</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<body style="background-color: black; color: white">
+
+    <div class="modal fade" id="entryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="color:black">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="entryModalTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="entryModalBody">
+                    Here is the contents of the modal body....
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#create">Create</a></li>
+            <li><a data-toggle="tab" href="#search">Search</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div id="create" class="tab-pane fade in active">
+                <h3>Create new entry</h3>
+                <textarea class="form-control" rows="10" placeholder="Write something here..." id="compose" style="background-color: #4e535b; color: white; font-size: 24px;"></textarea>
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" onclick="create()">
+            </div>
+            <div id="search" class="tab-pane fade">
+                <h3>Search</h3>
+                <label for="num">Number of results:</label>
+                <input class="form-control" type="number" value="5" min="1" id="num">
+                <hr />
+                <label><input type="checkbox" value="" id="starred">Show only starred entries</label><br />
+                <hr />
+                <label for="tags">Please enter tags to filter by:</label>
+                <input type="text" class="form-control" id="tags">
+                <span><label><input type="radio" name="optandor" value="checked">or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
+                <hr />
+                <label for="from">Filter earlier than:</label>
+                <input type="text" class="form-control" id="filterEarlier">
+                <label for="until">Filter later than:</label>
+                <input type="text" class="form-control" id="filterLater">
+                <br />
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Search" onclick="search()">
+                <br /> <br />
+                <div class="row" id="searchResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function create() {
+            if (document.getElementById('compose').value == '')
+                return
+
+            $.post('/create',
+            {
+               entry: document.getElementById('compose').value
+            },
+            (data, status) => {
+                if (status == 'success') {
+                    if (data.success == true) {
+                        document.getElementById('compose').value = ''
+                        showModal('Entry added', 'Your entry has been added successfully.')
+                        return
+                    }
+                }
+                showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
+            },
+            'json')
+
+        }
+        function search() {
+            $.post('/search',
+            {
+                num: document.getElementById('num').value,
+                starred: document.getElementById('starred').value,
+                tags: document.getElementById('tags').value,
+                useAnd: document.getElementById('useAnd').value,
+                filterEarlier: document.getElementById('filterEarlier').value,
+                filterLater: document.getElementById('filterLater').value
+            },
+            (data, status) => {
+                if (status == 'success') {
+                    let result = ''
+                    let entries = data.entries
+                    if (entries) {
+                        entries.forEach((entry) => {
+                            result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
+                            result += `<p class="h4">${entry.title}</p>`
+                            result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
+                            result += `<p>${entry.body}</p>`;
+                            result += '</div></div>'
+                        })
+                        document.getElementById('searchResults').innerHTML=result
+                        return
+                    }
+                }
+                showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
+            },
+            'json')
+        }
+        function showModal(title, body) {
+            document.getElementById('entryModalTitle').innerHTML = title
+            document.getElementById('entryModalBody').innerHTML = body
+            $('#entryModal').modal()
+        }
+    </script>
+
+</body>
+
+</html>
