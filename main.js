@@ -5,7 +5,7 @@ const app = express()
 const port = 3000
 const fs = require('fs')
 const path = require('path')
-const { exec } = require('child_process')
+const { spawn } = require('child_process')
 const client = path.join(__dirname, 'client')
 
 const usr = fs.readFileSync('server.usr', 'ASCII')
@@ -43,8 +43,18 @@ app.get('/', (req, res) => res.sendFile(path.join(client, 'index.html')))
 app.post('/create', function(req, res) {
     let entry = req.body.entry || ''
     if(entry) {
-        let command = `jrnl ${req.body.entry}`
-        exec(command, (err, stdout, stderr) => {
+        let args = [req.body.entry]
+        let proc = spawn('jrnl', args, {shell: true})
+        let stdout=''
+        let stderr=''
+        proc.stdout.on('data', (data) => {
+            stdout+=data
+        })
+        proc.stderr.on('data', (data) => {
+            stderr+=data
+        })
+        proc.on('close', (code) => {
+            console.log(`stdout: "${stdout}" stderr: "${stderr}"`)
             let result = { success: true }
             res.type('json')
             res.send(JSON.stringify(result))
@@ -64,24 +74,39 @@ app.post('/search', function(req, res) {
     let filterEarlier = req.body.filterEarlier || ''
     let filterLater = req.body.filterLater || ''
 
-    let command = `jrnl -n ${num} `
+    let args = ['-n', num]
     if(starred) {
-        command+='-starred '
+        args.push('-starred')
     }
     if(filterEarlier!=='') {
-        command+=`-from "${filterEarlier}" `
+        args.push('-from')
+        args.push(filterEarlier)
     }
     if(filterLater!=='') {
-        command+=`-until "${filterLater}" `
+        args.push('-until')
+        args.push(filterLater)
     }
     if(useAnd) {
-        command+='-and '
+        args.push('-and')
     }
-    command+=tags+' --export json'
+    args = args.concat(tags.split(' '))
 
-    exec(command, (err, stdout, stderr) => {
+    args.push('--export')
+    args.push('json')
+
+    let proc = spawn('jrnl', args, {shell: true})
+    let stdout=''
+    let stderr=''
+    proc.stdout.on('data', (data) => {
+        stdout+=data
+    })
+    proc.stderr.on('data', (data) => {
+        stderr+=data
+    })
+    proc.on('close', (code) => {
+        console.log(`stdout: "${stdout}" stderr: "${stderr}"`)
         res.type('json')
-        res.send(stdout)
+        res.send(stdout);
     })
 })
 

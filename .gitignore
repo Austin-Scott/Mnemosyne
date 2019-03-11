@@ -7,3 +7,5 @@ server.usr
 
 
 node_modules/*
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
