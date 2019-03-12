@@ -13,6 +13,10 @@ const psw = fs.readFileSync('server.pass', 'ASCII')
 
 const home = '/home/pi/'
 
+function escapeBashCharacters(str) {
+    return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
+}
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -47,7 +51,7 @@ app.post('/create', function(req, res) {
 
     let entry = req.body.entry || ''
     if(entry) {
-        let args = [req.body.entry]
+        let args = [escapeBashCharacters(req.body.entry)]
         let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
         let stdout=''
         let stderr=''
@@ -87,16 +91,20 @@ app.post('/search', function(req, res) {
     }
     if(filterEarlier!=='') {
         args.push('-from')
-        args.push(filterEarlier)
+        args.push(escapeBashCharacters(filterEarlier))
     }
     if(filterLater!=='') {
         args.push('-until')
-        args.push(filterLater)
+        args.push(escapeBashCharacters(filterLater))
     }
     if(useAnd) {
         args.push('-and')
     }
-    args = args.concat(tags.split(' '))
+
+    tags=tags.split(' ');
+    tags.forEach((tag)=>{
+        args.push(escapeBashCharacters(tag))
+    })
 
     args.push('--export')
     args.push('json')
