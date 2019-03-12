@@ -77,7 +77,7 @@
                 if (status == 'success') {
                     if (data.success == true) {
                         document.getElementById('compose').value = ''
-                        showModal('Entry added', 'Your entry has been added successfully.')
+                        showModal('Entry added', `<strong>Your entry has been added successfully.</strong><br /><small>stdout: "${data.stdo}" stderr: "${data.stde}"</small>`)
                         return
                     }
                 }

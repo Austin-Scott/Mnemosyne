@@ -43,6 +43,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => res.sendFile(path.join(client, 'index.html')))
 
 app.post('/create', function(req, res) {
+    console.log('Create entry request received')
+
     let entry = req.body.entry || ''
     if(entry) {
         let args = [req.body.entry]
@@ -56,7 +58,9 @@ app.post('/create', function(req, res) {
             stderr+=data
         })
         proc.on('close', (code) => {
-            let result = { success: true }
+            console.log(`Entry created- stdout: "${stdout}" stderr: "${stderr}"`)
+
+            let result = { success: true, stdo: stdout, stde: stderr }
             res.type('json')
             res.send(JSON.stringify(result))
         })
@@ -68,6 +72,8 @@ app.post('/create', function(req, res) {
 })
 
 app.post('/search', function(req, res) {
+    console.log('Search request received')
+
     let num = req.body.num || 1
     let starred = req.body.starred || false
     let tags = req.body.tags || ''
@@ -107,6 +113,8 @@ app.post('/search', function(req, res) {
     proc.on('close', (code) => {
         res.type('json')
         res.send(stdout);
+
+        console.log('Search results sent')
     })
 })
 
