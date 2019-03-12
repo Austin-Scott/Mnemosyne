@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link title="timeline-styles" rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css">
+    <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
@@ -60,12 +62,27 @@
                 <br />
                 <input type="button" class="btn btn-primary btn-lg btn-block" value="Search" onclick="search()">
                 <br /> <br />
-                <div class="row" id="searchResults"></div>
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#cards">Cards</a></li>
+                    <li><a data-toggle="tab" href="#timeline">Timeline</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="cards" class="tab-pane fade in active">
+                        <div class="row" id="searchResults"></div>
+                    </div>
+                    <div id="timeline" class="tab-pane fade">
+                        <div id='timeline-embed' style="width: 100%; height: 600px"></div>
+                    </div>
+                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        var timeline
+
         function create() {
             if (document.getElementById('compose').value == '')
                 return
@@ -109,7 +126,14 @@
                             result += `<p>${entry.body}</p>`;
                             result += '</div></div>'
                         })
-                        document.getElementById('searchResults').innerHTML=result
+                        document.getElementById('searchResults').innerHTML = result
+
+                        let args = {
+                            start_at_end: true,
+                            default_bg_color: { r: 0, g: 0, b: 0 }
+                        }
+                        timeline = new TL.Timeline('timeline-embed',timelineJson(entries),args);
+
                         return
                     }
                 }
@@ -121,6 +145,23 @@
             document.getElementById('entryModalTitle').innerHTML = title
             document.getElementById('entryModalBody').innerHTML = body
             $('#entryModal').modal()
+        }
+        function timelineJson(entries) {
+            let result = { events: [] }
+            entries.forEach((entry) => {
+                let date = entry.date.split('-')
+                let dYear = date[0]
+                let dMonth = date[1]
+                let dDay = date[2]
+                let time = entry.time.split(':')
+                let dHour = time[0]
+                let dMinute = time[1]
+                result.events.push({
+                    start_date: { year: dYear, month: dMonth, day: dDay, hour: dHour, minute: dMinute },
+                    text: { headline: entry.title, text: entry.body }
+                })
+            })
+            return result
         }
     </script>
 
