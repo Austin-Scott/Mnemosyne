@@ -158,7 +158,7 @@
                 let dMinute = time[1]
                 result.events.push({
                     start_date: { year: dYear, month: dMonth, day: dDay, hour: dHour, minute: dMinute },
-                    text: { headline: entry.title, text: entry.body }
+                    text: { headline: entry.title, text: entry.title+' '+entry.body }
                 })
             })
             return result
