@@ -14,7 +14,7 @@ const psw = fs.readFileSync('server.pass', 'ASCII')
 const home = '/home/pi/'
 
 function escapeBashCharacters(str) {
-    return '"'+cmd.replace(/(["\s'$`\\])/g,'\\$1')+'"';
+    return '"'+str.replace(/(["\s'$`\\])/g,'\\$1')+'"';
 }
 
 app.use(bodyParser.json())
