@@ -81,14 +81,14 @@ app.post('/search', function(req, res) {
     console.log(req.body)
 
     let num = req.body.num || 1
-    let starred = req.body.starred || false
+    let starred = req.body.starred || 'false'
     let tags = req.body.tags || ''
-    let useAnd = req.body.useAnd || false
+    let useAnd = req.body.useAnd || 'false'
     let filterEarlier = req.body.filterEarlier || ''
     let filterLater = req.body.filterLater || ''
 
     let args = ['-n', num]
-    if(starred) {
+    if(starred=='true') {
         args.push('-starred')
     }
     if(filterEarlier!=='') {
@@ -99,13 +99,14 @@ app.post('/search', function(req, res) {
         args.push('-until')
         args.push(escapeBashCharacters(filterLater))
     }
-    if(useAnd) {
+    if(useAnd=='true') {
         args.push('-and')
     }
 
     tags=tags.split(' ');
     tags.forEach((tag)=>{
-        args.push(escapeBashCharacters(tag))
+        if(tag!=='')
+            args.push(escapeBashCharacters(tag))
     })
 
     args.push('--export')
