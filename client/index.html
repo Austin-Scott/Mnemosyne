@@ -50,7 +50,7 @@
                 <hr />
                 <label for="tags">Please enter tags to filter by:</label>
                 <input type="text" class="form-control" id="tags">
-                <span><label><input type="radio" name="optandor" value="checked">or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
+                <span><label><input type="radio" name="optandor" value="" checked>or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
                 <hr />
                 <label for="from">Filter earlier than:</label>
                 <input type="text" class="form-control" id="filterEarlier">
@@ -90,9 +90,9 @@
             $.post('/search',
             {
                 num: document.getElementById('num').value,
-                starred: document.getElementById('starred').value,
+                starred: document.getElementById('starred').checked,
                 tags: document.getElementById('tags').value,
-                useAnd: document.getElementById('useAnd').value,
+                useAnd: document.getElementById('useAnd').checked,
                 filterEarlier: document.getElementById('filterEarlier').value,
                 filterLater: document.getElementById('filterLater').value
             },
