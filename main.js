@@ -11,6 +11,8 @@ const client = path.join(__dirname, 'client')
 const usr = fs.readFileSync('server.usr', 'ASCII')
 const psw = fs.readFileSync('server.pass', 'ASCII')
 
+const home = '/home/pi/'
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -44,7 +46,7 @@ app.post('/create', function(req, res) {
     let entry = req.body.entry || ''
     if(entry) {
         let args = [req.body.entry]
-        let proc = spawn('jrnl', args, {shell: true})
+        let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
         let stdout=''
         let stderr=''
         proc.stdout.on('data', (data) => {
@@ -54,7 +56,6 @@ app.post('/create', function(req, res) {
             stderr+=data
         })
         proc.on('close', (code) => {
-            console.log(`stdout: "${stdout}" stderr: "${stderr}"`)
             let result = { success: true }
             res.type('json')
             res.send(JSON.stringify(result))
@@ -94,7 +95,7 @@ app.post('/search', function(req, res) {
     args.push('--export')
     args.push('json')
 
-    let proc = spawn('jrnl', args, {shell: true})
+    let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
     let stdout=''
     let stderr=''
     proc.stdout.on('data', (data) => {
@@ -104,7 +105,6 @@ app.post('/search', function(req, res) {
         stderr+=data
     })
     proc.on('close', (code) => {
-        console.log(`stdout: "${stdout}" stderr: "${stderr}"`)
         res.type('json')
         res.send(stdout);
     })
