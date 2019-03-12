@@ -78,6 +78,8 @@ app.post('/create', function(req, res) {
 app.post('/search', function(req, res) {
     console.log('Search request received')
 
+    console.log(req.body)
+
     let num = req.body.num || 1
     let starred = req.body.starred || false
     let tags = req.body.tags || ''
@@ -108,6 +110,8 @@ app.post('/search', function(req, res) {
 
     args.push('--export')
     args.push('json')
+
+    console.log(args)
 
     let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
     let stdout=''
