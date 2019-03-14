@@ -1,0 +1,22 @@
+{
+  "name": "jrnl-web-interface",
+  "version": "1.0.0",
+  "description": "Web interface for jrnl.sh",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Austin-Scott/jrnl-Web-Interface.git"
+  },
+  "author": "Austin Scott",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Austin-Scott/jrnl-Web-Interface/issues"
+  },
+  "homepage": "https://github.com/Austin-Scott/jrnl-Web-Interface#readme",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
