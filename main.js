@@ -17,6 +17,14 @@ function escapeBashCharacters(str) {
     return '"'+str.replace(/(["$`\\])/g,'\\$1')+'"';
 }
 
+function spawnjrnl(args) {
+    if(process.platform=='linux') {
+        return spawn('jrnl', args, {shell: true, env: {HOME: home}})
+    } else {
+        return spawn('jrnl', args, {shell: true})
+    }
+}
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -52,7 +60,7 @@ app.post('/create', function(req, res) {
     let entry = req.body.entry || ''
     if(entry) {
         let args = [escapeBashCharacters(req.body.entry)]
-        let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
+        let proc = spawnjrnl(args)
         let stdout=''
         let stderr=''
         proc.stdout.on('data', (data) => {
@@ -114,7 +122,7 @@ app.post('/search', function(req, res) {
 
     console.log(args)
 
-    let proc = spawn('jrnl', args, {shell: true, env: {HOME: home}})
+    let proc = spawnjrnl(args)
     let stdout=''
     let stderr=''
     proc.stdout.on('data', (data) => {
