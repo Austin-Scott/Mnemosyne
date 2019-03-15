@@ -21,6 +21,6 @@ chmod +x setup.sh
 Follow the on screen prompts to configure your server's self-signed https certificates. You will also be prompted to set a username and password. You will need these to access the application so don't forget them.
 Finally start the server by running:
 ~~~
-node main.js
+sudo node main.js
 ~~~
 You can now interface with your journal by going to "https://localhost" or by entering your Raspberry Pi's ip address into any web browser. *Make sure you use https and not http!*
