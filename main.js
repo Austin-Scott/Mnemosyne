@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const { spawn } = require('child_process')
 const client = path.join(__dirname, 'client')
+const FuzzySearch = require('fuzzy-search')
 
 const usr = fs.readFileSync('server.usr', 'ASCII')
 const psw = fs.readFileSync('server.pass', 'ASCII')
@@ -88,6 +89,8 @@ app.post('/search', function(req, res) {
 
     console.log(req.body)
 
+    let terms = req.body.terms || ''
+    let limitByNum = req.body.limitByNum || 'true'
     let num = req.body.num || 1
     let starred = req.body.starred || 'false'
     let tags = req.body.tags || ''
@@ -95,17 +98,20 @@ app.post('/search', function(req, res) {
     let filterEarlier = req.body.filterEarlier || ''
     let filterLater = req.body.filterLater || ''
 
-    let args = ['-n', num]
+    let useSearch = (terms!=='')
+
+    let args = []
+    if(!useSearch && limitByNum=='true') {
+         args.push('-n', num)
+    }
     if(starred=='true') {
         args.push('-starred')
     }
     if(filterEarlier!=='') {
-        args.push('-from')
-        args.push(escapeBashCharacters(filterEarlier))
+        args.push('-from', escapeBashCharacters(filterEarlier))
     }
     if(filterLater!=='') {
-        args.push('-until')
-        args.push(escapeBashCharacters(filterLater))
+        args.push('-until', escapeBashCharacters(filterLater))
     }
     if(useAnd=='true') {
         args.push('-and')
@@ -133,7 +139,16 @@ app.post('/search', function(req, res) {
     })
     proc.on('close', (code) => {
         res.type('json')
-        res.send(stdout);
+        if(!useSearch) {
+            res.send(stdout)
+        } else {
+            let entries = JSON.parse(stdout)
+            const searcher = new FuzzySearch(entries.entries, ['title', 'body'], {sort: true})
+            const results = searcher.search(terms)
+            const end = num > results.length ? results.length : num
+            entries.entries = limitByNum=='true' ? results.slice(0, end) : results.length
+            res.send(JSON.stringify(entries))
+        }
 
         console.log('Search results sent')
     })
