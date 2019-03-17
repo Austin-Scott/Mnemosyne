@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Austin-Scott/jrnl-Web-Interface#readme",
   "dependencies": {
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "fuzzy-search": "^3.0.1"
   }
 }

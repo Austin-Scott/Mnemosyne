@@ -43,25 +43,46 @@
                 <h3>Create new entry</h3>
                 <textarea class="form-control" rows="10" placeholder="Write something here..." id="compose" style="background-color: #4e535b; color: white; font-size: 18px;"></textarea>
                 <br /><br />
-                <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" onclick="create()">
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" id="submitEntryButton" onclick="create()">
             </div>
             <div id="search" class="tab-pane fade">
                 <h3>Search</h3>
-                <label for="num">Number of results:</label>
-                <input class="form-control" type="number" value="5" min="1" id="num">
-                <hr />
-                <label><input type="checkbox" value="" id="starred">Show only starred entries</label><br />
-                <hr />
-                <label for="tags">Please enter tags to filter by:</label>
-                <input type="text" class="form-control" id="tags">
-                <span><label><input type="radio" name="optandor" value="" checked>or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
-                <hr />
-                <label for="from">Filter earlier than:</label>
-                <input type="text" class="form-control" id="filterEarlier">
-                <label for="until">Filter later than:</label>
-                <input type="text" class="form-control" id="filterLater">
+                <form action="javascript:;" onsubmit="search()" id="searchForm" >
+                    <label for="terms">Please enter search terms:</label>
+                    <input type="text" class="form-control" id="terms">
+                    <hr />
+                    <label><input type="checkbox" value="" id="limitByNum" checked>Limit number of results returned</label><br />
+                    <label for="num">Number of results:</label>
+                    <input class="form-control" type="number" value="5" min="1" id="num">
+
+                    <hr />
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#advancedOps">Show/Hide advanced options</a>
+                                </h4>
+                            </div>
+                            <div id="advancedOps" class="panel-collapse collapse">
+                                <div class="panel-body" style="background-color: black">
+                                    <label><input type="checkbox" value="" id="starred">Show only starred entries</label><br />
+                                    <hr />
+                                    <label for="tags">Please enter tags to filter by:</label>
+                                    <input type="text" class="form-control" id="tags">
+                                    <span><label><input type="radio" name="optandor" value="" checked>or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
+                                    <hr />
+                                    <label for="from">Filter earlier than:</label>
+                                    <input type="text" class="form-control" id="filterEarlier">
+                                    <label for="until">Filter later than:</label>
+                                    <input type="text" class="form-control" id="filterLater">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                </form>
                 <br />
-                <input type="button" class="btn btn-primary btn-lg btn-block" value="Search" onclick="search()">
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Search" id="searchButton" onclick="search()">
                 <br /> <br />
 
                 <ul class="nav nav-tabs">
@@ -76,7 +97,7 @@
                     <div id="timeline" class="tab-pane fade">
                         <div id='timeline-embed' style="width: 100%; height: 600px"></div>
                     </div>
-                 </div>
+                </div>
             </div>
         </div>
     </div>
@@ -84,63 +105,114 @@
     <script>
         var timeline
 
-        function create() {
-            if (document.getElementById('compose').value == '')
-                return
+        $('#searchForm input').keydown(function (e) {
+            if (e.keyCode == 13) {
+                $('#searchForm').submit();
+            }
+        })
 
-            $.post('/create',
-            {
-               entry: document.getElementById('compose').value
-            },
-            (data, status) => {
-                if (status == 'success') {
-                    if (data.success == true) {
-                        document.getElementById('compose').value = ''
-                        showModal('Entry added', `<strong>Your entry has been added successfully.</strong><br /><small>stdout: "${data.stdo}" stderr: "${data.stde}"</small>`)
+        function create() {
+            if (document.getElementById('compose').value == '') {
+                showModal('Error', 'Please compose your entry above before submitting.')
+                return
+            }
+
+            let button = document.getElementById('submitEntryButton')
+            let initialValue = button.value
+            button.value = 'Submitting...'
+            button.setAttribute('disabled', 'true')
+
+
+            $.ajax({
+                type: 'POST',
+                url: '/create',
+                data: {
+                    entry: document.getElementById('compose').value
+                },
+                success: (data, status) => {
+                    button.value = initialValue
+                    button.removeAttribute('disabled')
+                    if (status == 'success') {
+                        if (data.success == true) {
+                            document.getElementById('compose').value = ''
+                            showModal('Entry added', `<strong>Your entry has been added successfully.</strong><br /><small>stdout: "${data.stdo}" stderr: "${data.stde}"</small>`)
+                            return
+                        }
+                    }
+                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
+                },
+                error: (jqXHR, status) => {
+                    button.value = initialValue
+                    button.removeAttribute('disabled')
+
+                    if (status == 'timeout') {
+                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
                         return
                     }
-                }
-                showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-            },
-            'json')
+                    showModal('Error', `Your request was unable to be completed: ${status}`)
+                },
+                dataType: 'json',
+                timeout: 10000
+            })
 
         }
         function search() {
-            $.post('/search',
-            {
-                num: document.getElementById('num').value,
-                starred: document.getElementById('starred').checked,
-                tags: document.getElementById('tags').value,
-                useAnd: document.getElementById('useAnd').checked,
-                filterEarlier: document.getElementById('filterEarlier').value,
-                filterLater: document.getElementById('filterLater').value
-            },
-            (data, status) => {
-                if (status == 'success') {
-                    let result = ''
-                    let entries = data.entries
-                    if (entries) {
-                        entries.forEach((entry) => {
-                            result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
-                            result += `<p class="h4">${entry.title}</p>`
-                            result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
-                            result += `<p>${entry.body}</p>`;
-                            result += '</div></div>'
-                        })
-                        document.getElementById('searchResults').innerHTML = result
+            let button = document.getElementById('searchButton')
+            let initialValue = button.value
+            button.value = 'Searching...'
+            button.setAttribute('disabled', 'true')
 
-                        let args = {
-                            start_at_end: true,
-                            default_bg_color: { r: 0, g: 0, b: 0 }
+            $.ajax({
+                type: 'POST',
+                url: '/search',
+                data: {
+                    num: document.getElementById('num').value,
+                    starred: document.getElementById('starred').checked,
+                    tags: document.getElementById('tags').value,
+                    useAnd: document.getElementById('useAnd').checked,
+                    filterEarlier: document.getElementById('filterEarlier').value,
+                    filterLater: document.getElementById('filterLater').value
+                },
+                success: (data, status) => {
+                    button.value = initialValue
+                    button.removeAttribute('disabled')
+                    if (status == 'success') {
+                        let result = ''
+                        let entries = data.entries
+                        if (entries) {
+                            entries.forEach((entry) => {
+                                result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
+                                result += `<p class="h4">${entry.title}</p>`
+                                result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
+                                result += `<p>${entry.body}</p>`;
+                                result += '</div></div>'
+                            })
+                            document.getElementById('searchResults').innerHTML = result
+
+                            let args = {
+                                start_at_end: true,
+                                default_bg_color: { r: 0, g: 0, b: 0 }
+                            }
+                            timeline = new TL.Timeline('timeline-embed', timelineJson(entries), args)
+
+                            return
                         }
-                        timeline = new TL.Timeline('timeline-embed',timelineJson(entries),args);
+                    }
+                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
+                },
+                error: (jqXHR, status) => {
+                    button.value = initialValue
+                    button.removeAttribute('disabled')
 
+                    if (status == 'timeout') {
+                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
                         return
                     }
-                }
-                showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-            },
-            'json')
+                    showModal('Error', `Your request was unable to be completed: ${status}`)
+                },
+                dataType: 'json',
+                timeout: 10000
+            })
         }
         function showModal(title, body) {
             document.getElementById('entryModalTitle').innerHTML = title
