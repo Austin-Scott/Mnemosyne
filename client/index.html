@@ -49,7 +49,7 @@
                 <h3>Search</h3>
                 <form action="javascript:;" onsubmit="search()" id="searchForm" >
                     <label for="terms">Please enter search terms:</label>
-                    <input type="text" class="form-control" id="terms">
+                    <input type="text" class="form-control" placeholder="World domination" id="terms">
                     <hr />
                     <label><input type="checkbox" value="" id="limitByNum" checked>Limit number of results returned</label><br />
                     <label for="num">Number of results:</label>
@@ -68,13 +68,13 @@
                                     <label><input type="checkbox" value="" id="starred">Show only starred entries</label><br />
                                     <hr />
                                     <label for="tags">Please enter tags to filter by:</label>
-                                    <input type="text" class="form-control" id="tags">
+                                    <input type="text" class="form-control" placeholder="@tagOne @tagTwo" id="tags">
                                     <span><label><input type="radio" name="optandor" value="" checked>or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
                                     <hr />
                                     <label for="from">Filter earlier than:</label>
-                                    <input type="text" class="form-control" id="filterEarlier">
+                                    <input type="text" class="form-control" placeholder="last monday" id="filterEarlier">
                                     <label for="until">Filter later than:</label>
-                                    <input type="text" class="form-control" id="filterLater">
+                                    <input type="text" class="form-control" placeholder="2 march 2012" id="filterLater">
                                 </div>
                             </div>
                         </div>
@@ -166,6 +166,8 @@
                 type: 'POST',
                 url: '/search',
                 data: {
+                    terms: document.getElementById('terms').value,
+                    limitByNum: document.getElementById('limitByNum').checked,
                     num: document.getElementById('num').value,
                     starred: document.getElementById('starred').checked,
                     tags: document.getElementById('tags').value,
