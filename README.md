@@ -1,5 +1,6 @@
 # Mobile web app for jrnl
 ![Interface screens](https://user-images.githubusercontent.com/12504656/54495941-1f214580-48b7-11e9-8524-b0cfac0b89df.png)
+
 [jrnl](http://jrnl.sh/) is a fantastic open source text-based journaling application. However, it has one major problem: Interacting with your journal from a mobile device is difficult and error prone. This application seeks to fix that. By hosting a small node.js webserver on a device such as a Raspberry Pi, one can easily create and view their jrnl entries from a progressive web app on their phone or tablet anywhere.
 ## Getting Started
 ### For Raspberry Pi
@@ -25,3 +26,12 @@ Finally start the server by running:
 sudo node main.js
 ~~~
 You can now interface with your journal by going to "https://localhost" or by entering your Raspberry Pi's ip address into any web browser. *Make sure you use https and not http!*
+## Design Overview
+![jrnl-interface-MVC](https://user-images.githubusercontent.com/12504656/54613184-49464500-4a28-11e9-9878-dbd427ff0d93.png)
+
+Instead of using a cloud storage service such as Google Drive to synchronize multiple copies of your journal across devices this application simplifies the process by centralizing journal.txt to one copy on the server. The client then interacts with this file indirectly via AJAX calls. Since there is only one copy of your journal, you will always have the latest version and you will not have to worry about Google Drive creating merge conflicts if your file ever fails to sync.
+
+## Planned Features
+Here are some features that I would love to add to this application in the future:
+  * Statistics: See how many entries and words you have been adding to your journal over time
+  * Mood tracking: Add quantitative data about your mood over time to the journal. Then allow viewing this data in the statistics tab
