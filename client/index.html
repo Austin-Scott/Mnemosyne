@@ -36,6 +36,7 @@
         <ul class="nav nav-tabs">
             <li class="active"><a data-toggle="tab" href="#create">Create</a></li>
             <li><a data-toggle="tab" href="#search">Search</a></li>
+            <li><a data-toggle="tab" href="#statistics">Statistics</a></li>
         </ul>
 
         <div class="tab-content">
@@ -47,7 +48,7 @@
             </div>
             <div id="search" class="tab-pane fade">
                 <h3>Search</h3>
-                <form action="javascript:;" onsubmit="search()" id="searchForm" >
+                <form action="javascript:;" onsubmit="search()" id="searchForm">
                     <label for="terms">Please enter search terms:</label>
                     <input type="text" class="form-control" placeholder="World domination" id="terms">
                     <hr />
@@ -99,6 +100,11 @@
                     </div>
                 </div>
             </div>
+            <div id="statistics" class="tab-pane fade">
+                <h3>Statistics</h3>
+                <input type="button" class="btn btn-primary btn-lg" value="Request Statistics" id="statisticsButton" onclick="statistics()">
+                <div id="statsArea"></div>
+            </div>
         </div>
     </div>
 
@@ -110,6 +116,10 @@
                 $('#searchForm').submit();
             }
         })
+
+        function statistics() {
+
+        }
 
         function create() {
             if (document.getElementById('compose').value == '') {

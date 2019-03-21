@@ -18,6 +18,20 @@ function escapeBashCharacters(str) {
     return '"'+str.replace(/(["$`\\])/g,'\\$1')+'"';
 }
 
+function terminal(proc, callback) {
+    let stdout=''
+    let stderr=''
+    proc.stdout.on('data', (data) => {
+        stdout+=data
+    })
+    proc.stderr.on('data', (data) => {
+        stderr+=data
+    })
+    proc.on('close', (code) => {
+        callback(stdout, stderr, code)
+    })
+}
+
 function spawnjrnl(args) {
     if(process.platform=='linux') {
         return spawn('jrnl', args, {shell: true, env: {HOME: home}})
@@ -61,16 +75,8 @@ app.post('/create', function(req, res) {
     let entry = req.body.entry || ''
     if(entry) {
         let args = [escapeBashCharacters(req.body.entry)]
-        let proc = spawnjrnl(args)
-        let stdout=''
-        let stderr=''
-        proc.stdout.on('data', (data) => {
-            stdout+=data
-        })
-        proc.stderr.on('data', (data) => {
-            stderr+=data
-        })
-        proc.on('close', (code) => {
+
+        terminal(spawnjrnl(args), (stdout, stderr, code) => {
             console.log(`Entry created- stdout: "${stdout}" stderr: "${stderr}"`)
 
             let result = { success: true, stdo: stdout, stde: stderr }
@@ -82,6 +88,12 @@ app.post('/create', function(req, res) {
         res.type('json')
         res.send(JSON.stringify(result))
     }
+})
+
+app.get('/statistics', function(req, res) {
+    console.log('Statistics request received')
+
+    //TODO implementation
 })
 
 app.post('/search', function(req, res) {
@@ -123,21 +135,11 @@ app.post('/search', function(req, res) {
             args.push(escapeBashCharacters(tag))
     })
 
-    args.push('--export')
-    args.push('json')
+    args.push('--export', 'json')
 
     console.log(args)
 
-    let proc = spawnjrnl(args)
-    let stdout=''
-    let stderr=''
-    proc.stdout.on('data', (data) => {
-        stdout+=data
-    })
-    proc.stderr.on('data', (data) => {
-        stderr+=data
-    })
-    proc.on('close', (code) => {
+    terminal(spawnjrnl(args), (stdout, stderr, code) => {
         res.type('json')
         if(!useSearch) {
             res.send(stdout)
