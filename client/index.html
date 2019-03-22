@@ -111,6 +111,14 @@
     <script>
         var timeline
 
+        window.onbeforeunload = function () {
+            if (document.getElementById('compose').value.length > 0) {
+                return 'You have an unsubmitted entry that you will lose if you leave. Are you sure you want to proceed?'
+            } else {
+                return
+            }
+        }
+
         $('#searchForm input').keydown(function (e) {
             if (e.keyCode == 13) {
                 $('#searchForm').submit();
