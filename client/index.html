@@ -10,6 +10,8 @@
     <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 </head>
 <body style="background-color: black; color: white">
 
@@ -104,12 +106,22 @@
                 <h3>Statistics</h3>
                 <input type="button" class="btn btn-primary btn-lg" value="Request Statistics" id="statisticsButton" onclick="statistics()">
                 <div id="statsArea"></div>
+                <hr />
+                <canvas width="700" height="400" id="monthCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                <hr />
+                <canvas width="700" height="400" id="yearCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                <hr />
+                <canvas width="700" height="400" id="yearsCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                
             </div>
         </div>
     </div>
 
     <script>
-        var timeline
+        var timeline = null
+        var monthChart = null
+        var yearChart = null
+        var yearsChart = null
 
         window.onbeforeunload = function () {
             if (document.getElementById('compose').value.length > 0) {
@@ -124,6 +136,91 @@
                 $('#searchForm').submit();
             }
         })
+        //Number of days in given month
+        function daysInMonth(month, year) {
+            return new Date(year, month, 0).getDate()
+        }
+        function lastMonthData(data) {
+            let now = new Date()
+            let year = now.getFullYear()
+            let month = now.getMonth()
+            let day = now.getDay()
+
+            let result = []
+
+            console.log(data)
+
+            for (let i = 0; i < 30; i++) {
+                let words = 0
+                if (year in data.byYear && month in data.byYear[year].byMonth && day in data.byYear[year].byMonth[month].byDay) {
+                    words=data.byYear[year].byMonth[month].byDay[day].totalWordCount
+                }
+                result.push({ x: new Date(year, month, day), y: words })
+
+                if (day > 1) {
+                    day--
+                } else {
+                    if (month > 1) {
+                        month--
+                    } else {
+                        month = 12
+                        year--
+                    }
+                    day=daysInMonth(month, year)
+                }
+            }
+            return result
+        }
+        function lastYearData(data) {
+            let now = new Date()
+            let year = now.getFullYear()
+            let month = now.getMonth()
+        }
+        function lastTenYearsData(data) {
+            let now = new Date()
+            let year = now.getFullYear()
+        }
+        function createChart(context, title, timeLabel, data) {
+            return new Chart(context, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Total Word Count',
+                            backgroundColor: '#FFFFFF',
+                            fill: false,
+                            data: data
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: title
+                    },
+                    yAxisID: 'Words written',
+                    xAxisID: timeLabel,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }],
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: timeLabel
+                            }
+                        }]
+                    }
+                }
+            })
+        }
+        function updateChart(chart, newData) {
+            chart.data = newData
+            chart.update()
+        }
 
         function statistics() {
             let button = document.getElementById('statisticsButton')
@@ -139,10 +236,25 @@
                     button.removeAttribute('disabled')
                     if (status == 'success') {
                         let innerHTML = '<h5>All time totals:</h5>'
-                        innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount/data.totalEntryCount).toFixed(2)}</li></ul><hr />`
+                        innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount/data.totalEntryCount).toFixed(2)}</li></ul>`
+                        document.getElementById('statsArea').innerHTML = innerHTML
 
+                        if (monthChart == null) {
+                            monthChart=createChart($('#monthCanvas'), 'Words written in past 30 days', 'day', lastMonthData(data))
+                        } else {
+                            updateChart(monthChart, lastMonthData(data))
+                        }
+                        if (yearChart == null) {
+                            yearChart=createChart($('#yearCanvas'), 'Words written in past 12 months', 'month', lastYearData(data))
+                        } else {
+                            updateChart(yearChart, lastYearData(data))
+                        }
+                        if (yearsChart == null) {
+                            yearsChart=createChart($('#yearsCanvas'), 'Words written over the past 10 years', 'year', lastTenYearsData(data))
+                        } else {
+                            updateChart(yearsChart, lastTenYearsData(data))
+                        }
 
-                        document.getElementById('statsArea').innerHTML=innerHTML
                         return
                     }
                     showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
