@@ -7,3 +7,4 @@ server.usr
 
 node_modules/*
 .vs/*
+server.hm

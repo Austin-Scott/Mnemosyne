@@ -6,6 +6,10 @@ npm install
 #Generate a self-signed certificate
 openssl req -nodes -new -x509 -keyout server.key -out server.cert
 
+echo "Please enter your home directory:"
+read -e -i "$HOME" APPHOME
+echo -n $APPHOME > server.hm
+
 echo "Please enter your username:"
 read USERNAME
 
