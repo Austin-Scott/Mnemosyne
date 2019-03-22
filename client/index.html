@@ -126,7 +126,40 @@
         })
 
         function statistics() {
+            let button = document.getElementById('statisticsButton')
+            let initialValue = button.value
+            button.value = 'Retrieving...'
+            button.setAttribute('disabled', 'true')
 
+            $.ajax({
+                type: 'GET',
+                url: '/statistics',
+                success: (data, status) => {
+                    button.value = 'Refresh'
+                    button.removeAttribute('disabled')
+                    if (status == 'success') {
+                        let innerHTML = '<h5>All time totals:</h5>'
+                        innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount/data.totalEntryCount).toFixed(2)}</li></ul><hr />`
+
+
+                        document.getElementById('statsArea').innerHTML=innerHTML
+                        return
+                    }
+                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
+                },
+                error: (jqXHR, status) => {
+                    button.value = initialValue
+                    button.removeAttribute('disabled')
+
+                    if (status == 'timeout') {
+                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
+                        return
+                    }
+                    showModal('Error', `Your request was unable to be completed: ${status}`)
+                },
+                dataType: 'json',
+                timeout: 20000
+            })
         }
 
         function create() {
