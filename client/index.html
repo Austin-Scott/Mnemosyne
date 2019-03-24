@@ -107,21 +107,45 @@
                 <input type="button" class="btn btn-primary btn-lg" value="Request Statistics" id="statisticsButton" onclick="statistics()">
                 <div id="statsArea"></div>
                 <hr />
-                <canvas width="700" height="400" id="monthCanvas" style="background-color:black;width:100%;height:auto"></canvas>
-                <hr />
-                <canvas width="700" height="400" id="yearCanvas" style="background-color:black;width:100%;height:auto"></canvas>
-                <hr />
-                <canvas width="700" height="400" id="yearsCanvas" style="background-color:black;width:100%;height:auto"></canvas>
-                
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#byMonth">Month</a></li>
+                    <li><a data-toggle="tab" href="#byYear">Year</a></li>
+                    <li><a data-toggle="tab" href="#byYears">10 Years</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="byMonth" class="tab-pane fade in active">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byMonthNext" onclick="monthChartOffset++;updateMonthChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byMonthPrevious" onclick="monthChartOffset--;updateMonthChart()">
+                        <canvas width="700" height="400" id="monthCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                    <div id="byYear" class="tab-pane fade">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byYearNext" onclick="yearChartOffset++;updateYearChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byYearPrevious" onclick="yearChartOffset--;updateYearChart()">
+                        <canvas width="700" height="400" id="yearCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                    <div id="byYears" class="tab-pane fade">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byYearsNext" onclick="yearsChartOffset++; updateYearsChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byYearsPrevious" onclick="yearsChartOffset--; updateYearsChart()">
+                        <canvas width="700" height="400" id="yearsCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <br />
+    <br />
 
     <script>
         var timeline = null
         var monthChart = null
+        var monthChartOffset = 0
         var yearChart = null
+        var yearChartOffset = 0
         var yearsChart = null
+        var yearsChartOffset = 0
+        var chartData = null
 
         window.onbeforeunload = function () {
             if (document.getElementById('compose').value.length > 0) {
@@ -136,49 +160,83 @@
                 $('#searchForm').submit();
             }
         })
-        //Number of days in given month
-        function daysInMonth(month, year) {
-            return new Date(year, month, 0).getDate()
-        }
-        function lastMonthData(data) {
+        function monthData(data) {
             let now = new Date()
-            let year = now.getFullYear()
-            let month = now.getMonth()
-            let day = now.getDay()
 
             let result = []
 
-            console.log(data)
+            now.setDate(now.getDate()+(30*(monthChartOffset-1)))
 
             for (let i = 0; i < 30; i++) {
+                let year = now.getFullYear()
+                let month = now.getMonth()+1
+                let day = now.getDate()
+
                 let words = 0
                 if (year in data.byYear && month in data.byYear[year].byMonth && day in data.byYear[year].byMonth[month].byDay) {
-                    words=data.byYear[year].byMonth[month].byDay[day].totalWordCount
+                    words = data.byYear[year].byMonth[month].byDay[day].totalWordCount
                 }
-                result.push({ x: new Date(year, month, day), y: words })
+                result.push({ x: new Date(year, month-1, day), y: words })
 
-                if (day > 1) {
-                    day--
-                } else {
-                    if (month > 1) {
-                        month--
-                    } else {
-                        month = 12
-                        year--
-                    }
-                    day=daysInMonth(month, year)
-                }
+                now.setDate(day+1)
             }
             return result
         }
-        function lastYearData(data) {
-            let now = new Date()
-            let year = now.getFullYear()
-            let month = now.getMonth()
+        function updateMonthChart() {
+            if (chartData !== null && monthChart !== null) {
+                updateChart(monthChart, monthData(chartData))
+            }
         }
-        function lastTenYearsData(data) {
+        function yearData(data) {
             let now = new Date()
-            let year = now.getFullYear()
+
+            let result = []
+
+            now.setMonth(now.getMonth()+(12*(yearChartOffset-1)+1))
+
+            for (let i = 0; i < 12; i++) {
+                let year = now.getFullYear()
+                let month = now.getMonth() + 1
+
+                let words = 0
+                if (year in data.byYear && month in data.byYear[year].byMonth) {
+                    words = data.byYear[year].byMonth[month].totalWordCount
+                }
+                result.push({ x: new Date(year, month - 1), y: words })
+
+                now.setMonth(month)
+            }
+            return result
+        }
+        function updateYearChart() {
+            if (chartData !== null && yearChart !== null) {
+                updateChart(yearChart, yearData(chartData))
+            }
+        }
+        function tenYearsData(data) {
+            let now = new Date()
+
+            let result = []
+
+            now.setFullYear(now.getFullYear()+(10*(yearsChartOffset-1))+1)
+
+            for (let i = 0; i < 10; i++) {
+                let year = now.getFullYear()
+
+                let words = 0
+                if (year in data.byYear) {
+                    words = data.byYear[year].totalWordCount
+                }
+                result.push({ x: new Date(year,0), y: words })
+
+                now.setFullYear(year+1)
+            }
+            return result
+        }
+        function updateYearsChart() {
+            if (chartData !== null && yearsChart !== null) {
+                updateChart(yearsChart, tenYearsData(chartData))
+            }
         }
         function createChart(context, title, timeLabel, data) {
             return new Chart(context, {
@@ -187,7 +245,9 @@
                     datasets: [
                         {
                             label: 'Total Word Count',
-                            backgroundColor: '#FFFFFF',
+                            backgroundColor: '#5BC0DE',
+                            borderColor: '#5BC0DE',
+                            showLine: true,
                             fill: false,
                             data: data
                         }
@@ -218,7 +278,7 @@
             })
         }
         function updateChart(chart, newData) {
-            chart.data = newData
+            chart.data.datasets[0].data = newData
             chart.update()
         }
 
@@ -239,20 +299,22 @@
                         innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount/data.totalEntryCount).toFixed(2)}</li></ul>`
                         document.getElementById('statsArea').innerHTML = innerHTML
 
+                        chartData = data
+
                         if (monthChart == null) {
-                            monthChart=createChart($('#monthCanvas'), 'Words written in past 30 days', 'day', lastMonthData(data))
+                            monthChart = createChart($('#monthCanvas'), 'Words written per day', 'day', monthData(data))
                         } else {
-                            updateChart(monthChart, lastMonthData(data))
+                            updateMonthChart()
                         }
                         if (yearChart == null) {
-                            yearChart=createChart($('#yearCanvas'), 'Words written in past 12 months', 'month', lastYearData(data))
+                            yearChart=createChart($('#yearCanvas'), 'Words written per month', 'month', yearData(data))
                         } else {
-                            updateChart(yearChart, lastYearData(data))
+                            updateYearChart()
                         }
                         if (yearsChart == null) {
-                            yearsChart=createChart($('#yearsCanvas'), 'Words written over the past 10 years', 'year', lastTenYearsData(data))
+                            yearsChart=createChart($('#yearsCanvas'), 'Words written per year', 'year', tenYearsData(data))
                         } else {
-                            updateChart(yearsChart, lastTenYearsData(data))
+                            updateYearsChart()
                         }
 
                         return

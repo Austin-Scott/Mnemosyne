@@ -108,7 +108,11 @@ app.get('/statistics', (req, res) => {
             let dateTokens = entry.date.split('-')
             let year = dateTokens[0]
             let month = dateTokens[1]
+            if(month[0]=='0')
+                month = month[1]
             let day = dateTokens[2]
+            if(day[0]=='0')
+                day = day[1]
 
             let contents = entry.title+entry.body
             let wordCount = wordcount(contents)
