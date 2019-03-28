@@ -82,8 +82,9 @@ function loadLexicon() {
     return result
 }
 
-function analyzeSentiment(word, result) {
-    if(!(data in result)) {
+function analyzeSentimentWord(word, result) {
+    word=word.toLowerCase()
+    if(!('data' in result)) {
         result.data={
             matches: 0,
             anger: 0,
@@ -125,6 +126,28 @@ function analyzeSentiment(word, result) {
     return result
 }
 
+function analyzeSentimentWords(words) {
+    let result = {
+        data: {
+            matches: 0,
+            anger: 0,
+            anticipation: 0,
+            disgust: 0,
+            fear: 0,
+            joy: 0,
+            negative: 0,
+            positive: 0,
+            sadness: 0,
+            surprise: 0,
+            trust: 0
+        }
+    }
+    words.forEach((word)=>{
+        result=analyzeSentimentWord(word, result)
+    })
+    return result
+}
+
 function addSentimentResults(res1, res2) {
     let result = {
         data: {
@@ -156,7 +179,15 @@ function addSentimentResults(res1, res2) {
     return result
 }
 
-function computeSentimentSummary(result) {
+function sentimentNormalization(x) {
+    if(x<=0.0)
+        return 0.0
+    if(x>=1.0)
+        return 1.0
+    return (Math.pow(0.04, x)-1.0)/(-0.96)
+}
+
+function computeSentimentSummary(result, funct) {
     result.summary={
         polarity: 0,
         anger: 0,
@@ -169,17 +200,22 @@ function computeSentimentSummary(result) {
         trust: 0
     }
     if(result.data.matches>0) {
-        result.summary.polarity=(result.data.positive+result.data.negative)/result.data.matches
-        result.summary.anger=result.data.anger/result.data.matches
-        result.summary.anticipation=result.data.anticipation/result.data.matches
-        result.summary.disgust=result.data.disgust/result.data.matches
-        result.summary.fear=result.data.fear/result.data.matches
-        result.summary.joy=result.data.joy/result.data.matches
-        result.summary.sadness=result.data.sadness/result.data.matches
-        result.summary.surprise=result.data.surprise/result.data.matches
-        result.summary.trust=result.data.trust/result.data.matches
+        result.summary.polarity=funct(result.data.positive/result.data.matches)-funct(result.data.negative/result.data.matches)
+        result.summary.anger=funct(result.data.anger/result.data.matches)
+        result.summary.anticipation=funct(result.data.anticipation/result.data.matches)
+        result.summary.disgust=funct(result.data.disgust/result.data.matches)
+        result.summary.fear=funct(result.data.fear/result.data.matches)
+        result.summary.joy=funct(result.data.joy/result.data.matches)
+        result.summary.sadness=funct(result.data.sadness/result.data.matches)
+        result.summary.surprise=funct(result.data.surprise/result.data.matches)
+        result.summary.trust=funct(result.data.trust/result.data.matches)
     }
     return result
+}
+
+function splitIntoWords(str) {
+    let a = str.match(/\b(\w+)'?(\w+)?\b/g)
+    return a!==null ? a : []
 }
 
 function terminal(proc, callback) {
@@ -368,17 +404,22 @@ app.post('/search', (req, res) => {
     console.log(args)
 
     terminal(spawnjrnl(args), (stdout, stderr, code) => {
-        res.type('json')
-        if(!useSearch) {
-            res.send(stdout)
-        } else {
-            let entries = JSON.parse(stdout)
+        let entries = JSON.parse(stdout)
+        if(useSearch) {
             const searcher = new FuzzySearch(entries.entries, ['title', 'body'], {sort: true})
             const results = searcher.search(terms)
             const end = num > results.length ? results.length : num
             entries.entries = limitByNum=='true' ? results.slice(0, end) : results.length
             res.send(JSON.stringify(entries))
         }
+
+        entries.entries=entries.entries.map((entry)=>{
+            entry.sentiment = computeSentimentSummary(addSentimentResults(analyzeSentimentWords(splitIntoWords(entry.title)), analyzeSentimentWords(splitIntoWords(entry.body))), sentimentNormalization)
+            console.log(entry.sentiment)
+            return entry
+        })
+
+        res.json(entries)
 
         console.log('Search results sent')
     })
