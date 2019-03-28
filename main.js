@@ -413,11 +413,14 @@ app.post('/search', (req, res) => {
             res.send(JSON.stringify(entries))
         }
 
+        let overallSentiment = null
         entries.entries=entries.entries.map((entry)=>{
             entry.sentiment = computeSentimentSummary(addSentimentResults(analyzeSentimentWords(splitIntoWords(entry.title)), analyzeSentimentWords(splitIntoWords(entry.body))), sentimentNormalization)
-            console.log(entry.sentiment)
+            overallSentiment = overallSentiment!==null?addSentimentResults(overallSentiment, entry.sentiment) : entry.sentiment
             return entry
         })
+        
+        entries.sentiment = computeSentimentSummary(overallSentiment, sentimentNormalization)
 
         res.json(entries)
 

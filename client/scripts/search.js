@@ -1,5 +1,6 @@
 
 var timeline = null
+var searchSentimentChart=null
 
 //Allows user to search by pressing enter key
 $('#searchForm input').keydown(function (e) {
@@ -50,6 +51,28 @@ function search() {
                     }
                     timeline = new TL.Timeline('timeline-embed', timelineJson(entries), args)
 
+                    if (searchSentimentChart == null) {
+                        searchSentimentChart = new Chart($('#searchSentimentCanvas'), {
+                            type: 'radar',
+                            data: {
+                                labels: ['Anger', 'Anticipation', 'Disgust', 'Fear', 'Joy', 'Sadness', 'Surprise', 'Trust'],
+                                datasets: [radarJson(data, 'results')]
+                            },
+                            options: {
+                                scale: {
+                                    display: true,
+                                    ticks: {
+                                        min: 0,
+                                        max: 1
+                                    }
+                                }
+                            }
+                        })
+                    } else {
+                        searchSentimentChart.data.datasets[0] = radarJson(data, 'results')
+                        searchSentimentChart.update()
+                    }
+
                     return
                 }
             }
@@ -68,6 +91,16 @@ function search() {
         dataType: 'json',
         timeout: 10000
     })
+}
+
+function radarJson(entries, label) {
+    let data = entries.sentiment.summary
+    return {
+        label: label+` (Polarity: ${data.polarity.toFixed(2)})`,
+        backgroundColor: '#5BC0DE20',
+        borderColor: '#5BC0DE',
+        data: [data.anger, data.anticipation, data.disgust, data.fear, data.joy, data.sadness, data.surprise, data.trust]
+    }
 }
 
 //Converts JSON data returned from search result into format understanded by timeline.js
