@@ -6,7 +6,6 @@ const port = 3000
 const fs = require('fs')
 const path = require('path')
 const { spawn } = require('child_process')
-const client = path.join(__dirname, 'client')
 const FuzzySearch = require('fuzzy-search')
 const wordcount = require('wordcount')
 
@@ -61,7 +60,7 @@ app.use((req, res, next) => {
     // Verify login and password are set and correct
     if (!login || !password || login !== auth.login || password !== auth.password) {
         res.set('WWW-Authenticate', 'Basic realm="401"') 
-        res.status(401).send('Authentication required.') 
+        res.status(401).send('Authentication required. YOU SHALL NOT PASS!') 
         return
     }
 
@@ -70,8 +69,6 @@ app.use((req, res, next) => {
     next()
 
 })
-
-app.get('/', (req, res) => res.sendFile(path.join(client, 'index.html')))
 
 app.post('/create', (req, res) => {
     console.log('Create entry request received')
@@ -225,6 +222,8 @@ app.post('/search', (req, res) => {
         console.log('Search results sent')
     })
 })
+
+app.use(express.static(path.join(__dirname, 'client')))
 
 https.createServer({
     key: fs.readFileSync('server.key'),

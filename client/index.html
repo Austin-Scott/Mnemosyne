@@ -42,12 +42,16 @@
         </ul>
 
         <div class="tab-content">
+
+            <!--Create tab-->
             <div id="create" class="tab-pane fade in active">
                 <h3>Create new entry</h3>
                 <textarea class="form-control" rows="10" placeholder="Write something here..." id="compose" style="background-color: #4e535b; color: white; font-size: 18px;"></textarea>
                 <br /><br />
                 <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" id="submitEntryButton" onclick="create()">
             </div>
+
+            <!--Search tab-->
             <div id="search" class="tab-pane fade">
                 <h3>Search</h3>
                 <form action="javascript:;" onsubmit="search()" id="searchForm">
@@ -95,17 +99,25 @@
 
                 <div class="tab-content">
                     <div id="cards" class="tab-pane fade in active">
-                        <div class="row" id="searchResults"></div>
+                        <div class="row" id="searchResults">
+                            <!--Content added here via script-->
+                        </div>
                     </div>
                     <div id="timeline" class="tab-pane fade">
-                        <div id='timeline-embed' style="width: 100%; height: 600px"></div>
+                        <div id='timeline-embed' style="width: 100%; height: 600px">
+                            <!--Content added here via script-->
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!--Statistics tab-->
             <div id="statistics" class="tab-pane fade">
                 <h3>Statistics</h3>
                 <input type="button" class="btn btn-primary btn-lg" value="Request Statistics" id="statisticsButton" onclick="statistics()">
-                <div id="statsArea"></div>
+                <div id="statsArea">
+                    <!--Content added here via script-->
+                </div>
                 <hr />
 
                 <ul class="nav nav-tabs">
@@ -138,332 +150,18 @@
     <br />
 
     <script>
-        var timeline = null
-        var monthChart = null
-        var monthChartOffset = 0
-        var yearChart = null
-        var yearChartOffset = 0
-        var yearsChart = null
-        var yearsChartOffset = 0
-        var chartData = null
-
-        window.onbeforeunload = function () {
-            if (document.getElementById('compose').value.length > 0) {
-                return 'You have an unsubmitted entry that you will lose if you leave. Are you sure you want to proceed?'
-            } else {
-                return
-            }
-        }
-
-        $('#searchForm input').keydown(function (e) {
-            if (e.keyCode == 13) {
-                $('#searchForm').submit();
-            }
-        })
-        function monthData(data) {
-            let now = new Date()
-
-            let result = []
-
-            now.setDate(now.getDate()+(30*(monthChartOffset-1)))
-
-            for (let i = 0; i < 30; i++) {
-                let year = now.getFullYear()
-                let month = now.getMonth()+1
-                let day = now.getDate()
-
-                let words = 0
-                if (year in data.byYear && month in data.byYear[year].byMonth && day in data.byYear[year].byMonth[month].byDay) {
-                    words = data.byYear[year].byMonth[month].byDay[day].totalWordCount
-                }
-                result.push({ x: new Date(year, month-1, day), y: words })
-
-                now.setDate(day+1)
-            }
-            return result
-        }
-        function updateMonthChart() {
-            if (chartData !== null && monthChart !== null) {
-                updateChart(monthChart, monthData(chartData))
-            }
-        }
-        function yearData(data) {
-            let now = new Date()
-
-            let result = []
-
-            now.setMonth(now.getMonth()+(12*(yearChartOffset-1)+1))
-
-            for (let i = 0; i < 12; i++) {
-                let year = now.getFullYear()
-                let month = now.getMonth() + 1
-
-                let words = 0
-                if (year in data.byYear && month in data.byYear[year].byMonth) {
-                    words = data.byYear[year].byMonth[month].totalWordCount
-                }
-                result.push({ x: new Date(year, month - 1), y: words })
-
-                now.setMonth(month)
-            }
-            return result
-        }
-        function updateYearChart() {
-            if (chartData !== null && yearChart !== null) {
-                updateChart(yearChart, yearData(chartData))
-            }
-        }
-        function tenYearsData(data) {
-            let now = new Date()
-
-            let result = []
-
-            now.setFullYear(now.getFullYear()+(10*(yearsChartOffset-1))+1)
-
-            for (let i = 0; i < 10; i++) {
-                let year = now.getFullYear()
-
-                let words = 0
-                if (year in data.byYear) {
-                    words = data.byYear[year].totalWordCount
-                }
-                result.push({ x: new Date(year,0), y: words })
-
-                now.setFullYear(year+1)
-            }
-            return result
-        }
-        function updateYearsChart() {
-            if (chartData !== null && yearsChart !== null) {
-                updateChart(yearsChart, tenYearsData(chartData))
-            }
-        }
-        function createChart(context, title, timeLabel, data) {
-            return new Chart(context, {
-                type: 'line',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Total Word Count',
-                            backgroundColor: '#5BC0DE',
-                            borderColor: '#5BC0DE',
-                            showLine: true,
-                            fill: false,
-                            data: data
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    title: {
-                        display: true,
-                        text: title
-                    },
-                    yAxisID: 'Words written',
-                    xAxisID: timeLabel,
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }],
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                unit: timeLabel
-                            }
-                        }]
-                    }
-                }
-            })
-        }
-        function updateChart(chart, newData) {
-            chart.data.datasets[0].data = newData
-            chart.update()
-        }
-
-        function statistics() {
-            let button = document.getElementById('statisticsButton')
-            let initialValue = button.value
-            button.value = 'Retrieving...'
-            button.setAttribute('disabled', 'true')
-
-            $.ajax({
-                type: 'GET',
-                url: '/statistics',
-                success: (data, status) => {
-                    button.value = 'Refresh'
-                    button.removeAttribute('disabled')
-                    if (status == 'success') {
-                        let innerHTML = '<h5>All time totals:</h5>'
-                        innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount/data.totalEntryCount).toFixed(2)}</li></ul>`
-                        document.getElementById('statsArea').innerHTML = innerHTML
-
-                        chartData = data
-
-                        if (monthChart == null) {
-                            monthChart = createChart($('#monthCanvas'), 'Words written per day', 'day', monthData(data))
-                        } else {
-                            updateMonthChart()
-                        }
-                        if (yearChart == null) {
-                            yearChart=createChart($('#yearCanvas'), 'Words written per month', 'month', yearData(data))
-                        } else {
-                            updateYearChart()
-                        }
-                        if (yearsChart == null) {
-                            yearsChart=createChart($('#yearsCanvas'), 'Words written per year', 'year', tenYearsData(data))
-                        } else {
-                            updateYearsChart()
-                        }
-
-                        return
-                    }
-                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-                },
-                error: (jqXHR, status) => {
-                    button.value = initialValue
-                    button.removeAttribute('disabled')
-
-                    if (status == 'timeout') {
-                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
-                        return
-                    }
-                    showModal('Error', `Your request was unable to be completed: ${status}`)
-                },
-                dataType: 'json',
-                timeout: 20000
-            })
-        }
-
-        function create() {
-            if (document.getElementById('compose').value == '') {
-                showModal('Error', 'Please compose your entry above before submitting.')
-                return
-            }
-
-            let button = document.getElementById('submitEntryButton')
-            let initialValue = button.value
-            button.value = 'Submitting...'
-            button.setAttribute('disabled', 'true')
-
-
-            $.ajax({
-                type: 'POST',
-                url: '/create',
-                data: {
-                    entry: document.getElementById('compose').value
-                },
-                success: (data, status) => {
-                    button.value = initialValue
-                    button.removeAttribute('disabled')
-                    if (status == 'success') {
-                        if (data.success == true) {
-                            document.getElementById('compose').value = ''
-                            showModal('Entry added', `<strong>Your entry has been added successfully.</strong><br /><small>stdout: "${data.stdo}" stderr: "${data.stde}"</small>`)
-                            return
-                        }
-                    }
-                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-                },
-                error: (jqXHR, status) => {
-                    button.value = initialValue
-                    button.removeAttribute('disabled')
-
-                    if (status == 'timeout') {
-                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
-                        return
-                    }
-                    showModal('Error', `Your request was unable to be completed: ${status}`)
-                },
-                dataType: 'json',
-                timeout: 10000
-            })
-
-        }
-        function search() {
-            let button = document.getElementById('searchButton')
-            let initialValue = button.value
-            button.value = 'Searching...'
-            button.setAttribute('disabled', 'true')
-
-            $.ajax({
-                type: 'POST',
-                url: '/search',
-                data: {
-                    terms: document.getElementById('terms').value,
-                    limitByNum: document.getElementById('limitByNum').checked,
-                    num: document.getElementById('num').value,
-                    starred: document.getElementById('starred').checked,
-                    tags: document.getElementById('tags').value,
-                    useAnd: document.getElementById('useAnd').checked,
-                    filterEarlier: document.getElementById('filterEarlier').value,
-                    filterLater: document.getElementById('filterLater').value
-                },
-                success: (data, status) => {
-                    button.value = initialValue
-                    button.removeAttribute('disabled')
-                    if (status == 'success') {
-                        let result = ''
-                        let entries = data.entries
-                        if (entries) {
-                            entries.forEach((entry) => {
-                                result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
-                                result += `<p class="h4">${entry.title}</p>`
-                                result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
-                                result += `<p>${entry.body}</p>`;
-                                result += '</div></div>'
-                            })
-                            document.getElementById('searchResults').innerHTML = result
-
-                            let args = {
-                                start_at_end: true,
-                                default_bg_color: { r: 0, g: 0, b: 0 }
-                            }
-                            timeline = new TL.Timeline('timeline-embed', timelineJson(entries), args)
-
-                            return
-                        }
-                    }
-                    showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-                },
-                error: (jqXHR, status) => {
-                    button.value = initialValue
-                    button.removeAttribute('disabled')
-
-                    if (status == 'timeout') {
-                        showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
-                        return
-                    }
-                    showModal('Error', `Your request was unable to be completed: ${status}`)
-                },
-                dataType: 'json',
-                timeout: 10000
-            })
-        }
+        
         function showModal(title, body) {
             document.getElementById('entryModalTitle').innerHTML = title
             document.getElementById('entryModalBody').innerHTML = body
             $('#entryModal').modal()
         }
-        function timelineJson(entries) {
-            let result = { events: [] }
-            entries.forEach((entry) => {
-                let date = entry.date.split('-')
-                let dYear = date[0]
-                let dMonth = date[1]
-                let dDay = date[2]
-                let time = entry.time.split(':')
-                let dHour = time[0]
-                let dMinute = time[1]
-                result.events.push({
-                    start_date: { year: dYear, month: dMonth, day: dDay, hour: dHour, minute: dMinute },
-                    text: { headline: entry.title, text: entry.title+' '+entry.body }
-                })
-            })
-            return result
-        }
+        
     </script>
+
+    <script src="scripts/create.js"></script>
+    <script src="scripts/search.js"></script>
+    <script src="scripts/statistics.js"></script>
 
 </body>
 
