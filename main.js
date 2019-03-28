@@ -410,7 +410,6 @@ app.post('/search', (req, res) => {
             const results = searcher.search(terms)
             const end = num > results.length ? results.length : num
             entries.entries = limitByNum=='true' ? results.slice(0, end) : results.length
-            res.send(JSON.stringify(entries))
         }
 
         let overallSentiment = null
