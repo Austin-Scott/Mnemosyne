@@ -12,6 +12,8 @@ const wordcount = require('wordcount')
 const usr = fs.readFileSync('server.usr', 'ASCII')
 const psw = fs.readFileSync('server.pass', 'ASCII')
 
+const lexicon = loadLexicon()
+
 let home = ''
 if(process.platform=='linux') {
     home = fs.readFileSync('server.hm', 'ASCII')
@@ -19,6 +21,165 @@ if(process.platform=='linux') {
 
 function escapeBashCharacters(str) {
     return '"'+str.replace(/(["$`\\])/g,'\\$1')+'"';
+}
+
+function loadLexicon() {
+    lexiconStr = fs.readFileSync('lexicon.txt', 'ASCII')
+    result = {}
+    lexiconStr.split('\n').forEach((line)=>{
+        let word = ''
+        line.split(' ').forEach((token, i)=>{
+            if(i==0) {
+                word=token
+                result[word]={
+                    anger: false,
+                    anticipation: false,
+                    disgust: false,
+                    fear: false,
+                    joy: false,
+                    negative: false,
+                    positive: false,
+                    sadness: false,
+                    surprise: false,
+                    trust: false
+                }
+            } else {
+                switch(token) {
+                    case 'ang':
+                        result[word].anger=true
+                        break
+                    case 'ant':
+                        result[word].anticipation=true
+                        break
+                    case 'd':
+                        result[word].disgust=true
+                        break
+                    case 'f':
+                        result[word].fear=true
+                        break
+                    case 'j':
+                        result[word].joy=true
+                        break
+                    case 'n':
+                        result[word].negative=true
+                        break
+                    case 'p':
+                        result[word].positive=true
+                        break
+                    case 'sa':
+                        result[word].sadness=true
+                        break
+                    case 'su':
+                        result[word].surprise=true
+                        break
+                    case 't':
+                        result[word].trust=true
+                        break
+                }
+            }
+        })
+    })
+    return result
+}
+
+function analyzeSentiment(word, result) {
+    if(!(data in result)) {
+        result.data={
+            matches: 0,
+            anger: 0,
+            anticipation: 0,
+            disgust: 0,
+            fear: 0,
+            joy: 0,
+            negative: 0,
+            positive: 0,
+            sadness: 0,
+            surprise: 0,
+            trust: 0
+        }
+    }
+    if(lexicon.hasOwnProperty(word)) {
+        let wordData = lexicon[word]
+        result.data.matches++
+        if(wordData.anger)
+            result.data.anger++
+        if(wordData.anticipation)
+            result.data.anticipation++
+        if(wordData.disgust)
+            result.data.disgust++
+        if(wordData.fear)
+            result.data.fear++
+        if(wordData.joy)
+            result.data.joy++
+        if(wordData.negative)
+            result.data.negative++
+        if(wordData.positive)
+            result.data.positive++
+        if(wordData.sadness)
+            result.data.sadness++
+        if(wordData.surprise)
+            result.data.surprise++
+        if(wordData.trust)
+            result.data.trust++
+    }
+    return result
+}
+
+function addSentimentResults(res1, res2) {
+    let result = {
+        data: {
+            matches: 0,
+            anger: 0,
+            anticipation: 0,
+            disgust: 0,
+            fear: 0,
+            joy: 0,
+            negative: 0,
+            positive: 0,
+            sadness: 0,
+            surprise: 0,
+            trust: 0
+        }
+    }
+    result.data.matches=res1.data.matches+res2.data.matches
+    result.data.anger=res1.data.anger+res2.data.anger
+    result.data.anticipation=res1.data.anticipation+res2.data.anticipation
+    result.data.disgust=res1.data.disgust+res2.data.disgust
+    result.data.fear=res1.data.fear+res2.data.fear
+    result.data.joy=res1.data.joy+res2.data.joy
+    result.data.negative=res1.data.negative+res2.data.negative
+    result.data.positive=res1.data.positive+res2.data.positive
+    result.data.sadness=res1.data.sadness+res2.data.sadness
+    result.data.surprise=res1.data.surprise+res2.data.surprise
+    result.data.trust=res1.data.trust+res2.data.trust
+
+    return result
+}
+
+function computeSentimentSummary(result) {
+    result.summary={
+        polarity: 0,
+        anger: 0,
+        anticipation: 0,
+        disgust: 0,
+        fear: 0,
+        joy: 0,
+        sadness: 0,
+        surprise: 0,
+        trust: 0
+    }
+    if(result.data.matches>0) {
+        result.summary.polarity=(result.data.positive+result.data.negative)/result.data.matches
+        result.summary.anger=result.data.anger/result.data.matches
+        result.summary.anticipation=result.data.anticipation/result.data.matches
+        result.summary.disgust=result.data.disgust/result.data.matches
+        result.summary.fear=result.data.fear/result.data.matches
+        result.summary.joy=result.data.joy/result.data.matches
+        result.summary.sadness=result.data.sadness/result.data.matches
+        result.summary.surprise=result.data.surprise/result.data.matches
+        result.summary.trust=result.data.trust/result.data.matches
+    }
+    return result
 }
 
 function terminal(proc, callback) {
