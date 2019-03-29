@@ -1,7 +1,7 @@
-# Mobile web app for jrnl
+# Mnemosyne
 ![Interface screens](https://user-images.githubusercontent.com/12504656/54495941-1f214580-48b7-11e9-8524-b0cfac0b89df.png)
 
-[jrnl](http://jrnl.sh/) is a fantastic open source text-based journaling application. However, it has one major problem: Interacting with your journal from a mobile device is difficult and error prone. This application seeks to fix that. By hosting a small node.js webserver on a device such as a Raspberry Pi, one can easily create and view their jrnl entries from a progressive web app on their phone or tablet anywhere.
+Mnemosyne *(pronounced: "new-ma-se-nee")* is a graphical front-end for [jrnl](http://jrnl.sh/) built with [node.js](https://nodejs.org/en/) and [Bootstrap](https://getbootstrap.com/). jrnl is a fantastic open source text-based journaling application. However, it has one major problem: Interacting with your journal from a mobile device is difficult and error prone. This application seeks to fix that. By hosting a small node.js webserver on a device such as a Raspberry Pi, one can easily create and view their jrnl entries from a progressive web app on their phone or tablet anywhere. Mnemosyne is named after the Goddess of memory and remembrance in Greek mythology. 
 ## Getting Started
 ### For Raspberry Pi
 First, download and install python, nodejs, openssl, git, and jrnl.
