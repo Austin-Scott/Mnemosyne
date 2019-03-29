@@ -42,7 +42,7 @@ function tagCurrentLocation(cb) {
             textOutputArea.innerHTML='<span class="text-warning">Geolocation is not supported by your browser</span>'
         }
     } else {
-
+        tagLocation=false
         textOutputArea.innerHTML=''
     }
 }
