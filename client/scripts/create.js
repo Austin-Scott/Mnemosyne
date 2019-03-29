@@ -8,6 +8,45 @@ window.onbeforeunload = function () {
     }
 }
 
+var tagLocation = false
+var lat = null
+var lon = null
+
+function tagCurrentLocation(cb) {
+    let textOutputArea = document.getElementById('gpsText')
+    if (cb.checked) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) =>{
+                lat = pos.coords.latitude
+                lon = pos.coords.longitude
+                tagLocation = true
+                textOutputArea.innerHTML = `<span class="text-success">Latitude: ${lat} Longitude: ${lon}</span>`
+            }, (err) =>{
+                tagLocation = false
+                switch (err.code) {
+                    case err.PERMISSION_DENIED:
+                        textOutputArea.innerHTML = '<span class="text-warning">Geolocation permission denied</span>'
+                        break
+                    case err.POSITION_UNAVAILABLE:
+                        textOutputArea.innerHTML = '<span class="text-warning">Location unavailable</span>'
+                        break
+                    case err.TIMEOUT:
+                        textOutputArea.innerHTML = '<span class="text-warning">Geolocation request timed out</span>'
+                        break
+                    case err.UNKNOWN_ERROR:
+                        textOutputArea.innerHTML = '<span class="text-warning">An unknown error occurred</span>'
+                        break
+                }
+            })
+        } else {
+            textOutputArea.innerHTML='<span class="text-warning">Geolocation is not supported by your browser</span>'
+        }
+    } else {
+
+        textOutputArea.innerHTML=''
+    }
+}
+
 //Function that submits an entry to the server via AJAX request
 function create() {
     if (document.getElementById('compose').value == '') {
@@ -20,12 +59,17 @@ function create() {
     button.value = 'Submitting...'
     button.setAttribute('disabled', 'true')
 
+    let entryContent = document.getElementById('compose').value
+
+    if (tagLocation) {
+        entryContent += ` @_location ${lat} ${lon}`
+    }
 
     $.ajax({
         type: 'POST',
         url: '/create',
         data: {
-            entry: document.getElementById('compose').value
+            entry: entryContent
         },
         success: (data, status) => {
             button.value = initialValue

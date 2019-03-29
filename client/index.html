@@ -48,6 +48,12 @@
                 <h3>Create new entry</h3>
                 <textarea class="form-control" rows="10" placeholder="Write something here..." id="compose" style="background-color: #4e535b; color: white; font-size: 18px;"></textarea>
                 <br /><br />
+                <hr />
+                <label><input type="checkbox" value="" id="tagGPS" onclick="tagCurrentLocation(this)">Tag current location</label><br />
+                <div id="gpsText">
+                    <!--Added via script-->
+                </div>
+                <hr />
                 <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" id="submitEntryButton" onclick="create()">
             </div>
 
