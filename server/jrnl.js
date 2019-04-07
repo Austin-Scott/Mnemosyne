@@ -21,7 +21,12 @@ function spawnjrnl(args) {
 }
 
 function loadLexicon() {
-    lexiconStr = fs.readFileSync('lexicon.txt', 'ASCII')
+    let lexiconStr = ''
+    try {
+        lexiconStr = fs.readFileSync('lexicon.txt', 'ASCII')
+    } catch(err) {
+        console.log('failed to open lexicon.txt: '+err)
+    }
     result = {}
     lexiconStr.split('\n').forEach((line) => {
         let word = ''
