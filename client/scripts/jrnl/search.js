@@ -18,7 +18,7 @@ function search() {
 
     $.ajax({
         type: 'POST',
-        url: '/search',
+        url: '/jrnl/search',
         data: {
             terms: document.getElementById('terms').value,
             limitByNum: document.getElementById('limitByNum').checked,
