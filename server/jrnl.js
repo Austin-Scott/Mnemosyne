@@ -14,7 +14,7 @@ const lexicon = loadLexicon()
 
 function spawnjrnl(args) {
     if (process.platform == 'linux') {
-        return spawn('jrnl', args, { shell: true, env: { HOME: home } })
+        return spawn('jrnl', args, { shell: true, env: { HOME: t.home } })
     } else {
         return spawn('jrnl', args, { shell: true })
     }
@@ -338,10 +338,10 @@ jrnl.post('/search', (req, res) => {
         args.push('-starred')
     }
     if (filterEarlier !== '') {
-        args.push('-from', escapeBashCharacters(filterEarlier))
+        args.push('-from', t.escapeBashCharacters(filterEarlier))
     }
     if (filterLater !== '') {
-        args.push('-until', escapeBashCharacters(filterLater))
+        args.push('-until', t.escapeBashCharacters(filterLater))
     }
     if (useAnd == 'true') {
         args.push('-and')
@@ -350,7 +350,7 @@ jrnl.post('/search', (req, res) => {
     tags = tags.split(' ');
     tags.forEach((tag) => {
         if (tag !== '')
-            args.push(escapeBashCharacters(tag))
+            args.push(t.escapeBashCharacters(tag))
     })
 
     args.push('--export', 'json')

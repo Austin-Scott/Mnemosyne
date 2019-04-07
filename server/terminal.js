@@ -1,4 +1,4 @@
-
+const fs = require('fs')
 
 function escapeBashCharacters(str) {
     return '"' + str.replace(/(["$`\\])/g, '\\$1') + '"';
@@ -18,5 +18,11 @@ function terminal(proc, callback) {
     })
 }
 
+let home = ''
+if (process.platform == 'linux') {
+    home = fs.readFileSync('server.hm', 'ASCII')
+}
+
 module.exports.terminal = terminal
 module.exports.escapeBashCharacters = escapeBashCharacters
+module.exports.home = home

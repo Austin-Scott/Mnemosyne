@@ -10,11 +10,6 @@ const jrnl = require('./server/jrnl.js')
 const usr = fs.readFileSync('server.usr', 'ASCII')
 const psw = fs.readFileSync('server.pass', 'ASCII')
 
-let home = ''
-if(process.platform=='linux') {
-    home = fs.readFileSync('server.hm', 'ASCII')
-}
-
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
