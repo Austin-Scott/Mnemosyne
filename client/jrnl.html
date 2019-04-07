@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Mnemosyne</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/images/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/images/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/images/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/images/android-chrome-512x512.png" sizes="512x512">
+    <link rel="manifest" href="/images/site.webmanifest">
+    <meta name="theme-color" content="#000000">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link title="timeline-styles" rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css">
+    <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+</head>
+<body style="background-color: black; color: white">
+
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">Mnemosyne</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">jrnl</a></li>
+                <li><a href="timew.html">Time Warrior</a></li>
+                <li><a href="taskw.html">Task Warrior</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="modal fade" id="entryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="color:black">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="entryModalTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="entryModalBody">
+                    Here is the contents of the modal body....
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#create">Create</a></li>
+            <li><a data-toggle="tab" href="#search">Search</a></li>
+            <li><a data-toggle="tab" href="#statistics">Statistics</a></li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!--Create tab-->
+            <div id="create" class="tab-pane fade in active">
+                <h3>Create new entry</h3>
+                <textarea class="form-control" rows="10" placeholder="Write something here..." id="compose" style="background-color: #4e535b; color: white; font-size: 18px;"></textarea>
+                <br /><br />
+                <hr />
+                <label><input type="checkbox" value="" id="tagGPS" onclick="tagCurrentLocation(this)">Tag current location</label><br />
+                <div id="gpsText">
+                    <!--Added via script-->
+                </div>
+                <hr />
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Submit Entry" id="submitEntryButton" onclick="create()">
+            </div>
+
+            <!--Search tab-->
+            <div id="search" class="tab-pane fade">
+                <h3>Search</h3>
+                <form action="javascript:;" onsubmit="search()" id="searchForm">
+                    <label for="terms">Please enter search terms:</label>
+                    <input type="text" class="form-control" placeholder="World domination" id="terms">
+                    <hr />
+                    <label><input type="checkbox" value="" id="limitByNum" checked>Limit number of results returned</label><br />
+                    <label for="num">Number of results:</label>
+                    <input class="form-control" type="number" value="5" min="1" id="num">
+
+                    <hr />
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" href="#advancedOps">Show/Hide advanced options</a>
+                                </h4>
+                            </div>
+                            <div id="advancedOps" class="panel-collapse collapse">
+                                <div class="panel-body" style="background-color: black">
+                                    <label><input type="checkbox" value="" id="starred">Show only starred entries</label><br />
+                                    <hr />
+                                    <label for="tags">Please enter tags to filter by:</label>
+                                    <input type="text" class="form-control" placeholder="@tagOne @tagTwo" id="tags">
+                                    <span><label><input type="radio" name="optandor" value="" checked>or&nbsp;&nbsp;</label><label><input type="radio" name="optandor" id="useAnd">and</label></span>
+                                    <hr />
+                                    <label for="from">Filter earlier than:</label>
+                                    <input type="text" class="form-control" placeholder="last monday" id="filterEarlier">
+                                    <label for="until">Filter later than:</label>
+                                    <input type="text" class="form-control" placeholder="2 march 2012" id="filterLater">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                </form>
+                <br />
+                <input type="button" class="btn btn-primary btn-lg btn-block" value="Search" id="searchButton" onclick="search()">
+                <br /> <br />
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#cards">Cards</a></li>
+                    <li><a data-toggle="tab" href="#timeline">Timeline</a></li>
+                    <li><a data-toggle="tab" href="#ssanalysis">Sentiment Analysis</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="cards" class="tab-pane fade in active">
+                        <div class="row" id="searchResults">
+                            <!--Content added here via script-->
+                        </div>
+                    </div>
+                    <div id="timeline" class="tab-pane fade">
+                        <div id='timeline-embed' style="width: 100%; height: 600px">
+                            <!--Content added here via script-->
+                        </div>
+                    </div>
+                    <div id="ssanalysis" class="tab-pane fade">
+                        <canvas width="700" height="400" id="searchSentimentCanvas" style="background-color:white;width:100%;height:auto"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!--Statistics tab-->
+            <div id="statistics" class="tab-pane fade">
+                <h3>Statistics</h3>
+                <input type="button" class="btn btn-primary btn-lg" value="Request Statistics" id="statisticsButton" onclick="statistics()">
+                <div id="statsArea">
+                    <!--Content added here via script-->
+                </div>
+                <hr />
+
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#byMonth">Month</a></li>
+                    <li><a data-toggle="tab" href="#byYear">Year</a></li>
+                    <li><a data-toggle="tab" href="#byYears">10 Years</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="byMonth" class="tab-pane fade in active">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byMonthNext" onclick="monthChartOffset++;updateMonthChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byMonthPrevious" onclick="monthChartOffset--;updateMonthChart()">
+                        <canvas width="700" height="400" id="monthCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                    <div id="byYear" class="tab-pane fade">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byYearNext" onclick="yearChartOffset++;updateYearChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byYearPrevious" onclick="yearChartOffset--;updateYearChart()">
+                        <canvas width="700" height="400" id="yearCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                    <div id="byYears" class="tab-pane fade">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Next" id="byYearsNext" onclick="yearsChartOffset++; updateYearsChart()">
+                        <input type="button" class="btn btn-primary btn-lg pull-right" value="Previous" id="byYearsPrevious" onclick="yearsChartOffset--; updateYearsChart()">
+                        <canvas width="700" height="400" id="yearsCanvas" style="background-color:black;width:100%;height:auto"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+
+    <script>
+
+        function showModal(title, body) {
+            document.getElementById('entryModalTitle').innerHTML = title
+            document.getElementById('entryModalBody').innerHTML = body
+            $('#entryModal').modal()
+        }
+
+    </script>
+
+    <script src="scripts/create.js"></script>
+    <script src="scripts/search.js"></script>
+    <script src="scripts/statistics.js"></script>
+
+</body>
+
+</html>
