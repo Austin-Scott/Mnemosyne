@@ -226,7 +226,7 @@ jrnl.post('/create', (req, res) => {
 
     let entry = req.body.entry || ''
     if (entry) {
-        let args = [escapeBashCharacters(req.body.entry)]
+        let args = [t.escapeBashCharacters(req.body.entry)]
 
         t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
             console.log(`Entry created- stdout: "${stdout}" stderr: "${stderr}"`)
