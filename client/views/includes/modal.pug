@@ -1,0 +1,14 @@
+mixin addModalSource
+  div(class='modal fade', id='entryModal', tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true', style='color:black')
+    div(class='modal-dialog', role='document')
+      .modal-content
+        .modal-header
+          h5(class='modal-title', id='entryModalTitle') Modal title
+          button(type='button', class='close', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        div(class='modal-body', id='entryModalBody') Here is the contents of the modal body...
+        .modal-footer
+          button(type='button', class='btn btn-secondary', data-dismiss='modal') Close
+
+mixin addModalCode
+  script function showModal(title, body) { document.getElementById('entryModalTitle').innerHTML = title; document.getElementById('entryModalBody').innerHTML = body; $('#entryModal').modal(); }

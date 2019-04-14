@@ -1,0 +1,22 @@
+mixin tabBar(...names)
+  ul(class='nav nav-tabs')
+    - for(let i=0;i<names.length;i++)
+      - let id = '#'+names[i].replace(' ', '-')+'Tab'
+      if i==0
+        li(class='active')
+          a(data-toggle='tab', href=id) #{names[i]}
+      else
+        li
+          a(data-toggle='tab', href=id) #{names[i]}
+
+mixin beginTabPanel
+  .tab-content
+    block
+
+mixin addFirstTab(name)
+  div(id=name.replace(' ', '-')+'Tab', class='tab-pane fade in active')
+    block
+
+mixin addOtherTab(name)
+  div(id=name.replace(' ', '-')+'Tab', class='tab-pane fade')
+    block
