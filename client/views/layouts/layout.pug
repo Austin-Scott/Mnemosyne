@@ -1,3 +1,4 @@
+include ../includes/modal.pug
 doctype html
 html(lang='en')
   head
@@ -16,13 +17,17 @@ html(lang='en')
             span(class='icon-bar')
             span(class='icon-bar')
             span(class='icon-bar')
-          a(class='navbar-brand', href='/') Brand Name Here
+          a(class='navbar-brand', href='/') Mnemosyne
         ul(id='navbar', class='nav navbar-nav navbar-collapse collapse')
-          - let options = [{display: 'About', link: '/about'}, {display: 'Test', link: '/test'}]
+          - let options = [{display: 'jrnl', link: '/jrnl'}, {display: 'Timewarrior', link: '/timew'}, {display: 'Taskwarrior', link: '/taskw'}]
           each option in options
             - let isActive = option.display == title
             li(class=isActive?'active':'')
               a(href=isActive?'#':option.link) #{option.display}
+    +addModalSource
     div(class='container')
       block content
         p This is the default content.
+    block scripts
+      +addModalCode
+      

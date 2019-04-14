@@ -1,11 +1,11 @@
-const express = require('express')
-const FuzzySearch = require('fuzzy-search')
-const wordcount = require('wordcount')
-const fs = require('fs')
-const path = require('path')
-const { spawn } = require('child_process')
+import express from 'express'
+import FuzzySearch from 'fuzzy-search'
+import wordcount from 'wordcount'
+import fs from 'fs'
+import path from 'path'
+import { spawn } from 'child_process'
 
-const t = require('./terminal.js')
+import t from '../terminal.js'
 
 const jrnl = new express.Router()
 
@@ -27,7 +27,7 @@ function loadLexicon() {
     } catch(err) {
         console.log('failed to open lexicon.txt: '+err)
     }
-    result = {}
+    let result = {}
     lexiconStr.split('\n').forEach((line) => {
         let word = ''
         line.split(' ').forEach((token, i) => {
@@ -381,4 +381,4 @@ jrnl.post('/search', (req, res) => {
     })
 })
 
-module.exports = jrnl
+export default jrnl

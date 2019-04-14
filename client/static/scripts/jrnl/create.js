@@ -67,7 +67,7 @@ function create() {
 
     $.ajax({
         type: 'POST',
-        url: '/jrnl/create',
+        url: '/jrnlAPI/create',
         data: {
             entry: entryContent
         },

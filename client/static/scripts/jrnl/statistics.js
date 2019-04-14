@@ -150,7 +150,7 @@ function statistics() {
 
     $.ajax({
         type: 'GET',
-        url: '/jrnl/statistics',
+        url: '/jrnlAPI/statistics',
         success: (data, status) => {
             button.value = 'Refresh'
             button.removeAttribute('disabled')
