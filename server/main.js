@@ -5,6 +5,8 @@ import fs from 'fs'
 import path from 'path'
 
 import jrnl from './routers/jrnl.js'
+import taskw from './routers/taskw.js'
+import { getTaskList } from './routers/taskw.js'
 
 const app = express()
 
@@ -45,6 +47,7 @@ app.use((req, res, next) => {
 
 //Respond to AJAX API requests
 app.use('/jrnlAPI', jrnl)
+app.use('/taskwAPI', taskw)
 
 //Render views
 app.get('/', (req, res)=>{
@@ -54,7 +57,9 @@ app.get('/jrnl', (req, res)=>{
     res.render('jrnl', {title: 'jrnl'})
 })
 app.get('/taskw', (req, res)=>{
-    res.render('taskw', {title: 'Taskwarrior'})
+    getTaskList().then((taskList)=>{
+        res.render('taskw', {title: 'Taskwarrior', tasks: taskList})
+    })
 })
 app.get('/timew', (req, res)=>{
     res.render('timew', {title: 'Timewarrior'})
