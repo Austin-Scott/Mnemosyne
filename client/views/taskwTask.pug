@@ -1,5 +1,20 @@
 extends layouts/layout.pug
 
 block content
+  button(type='button', class='btn btn-info', onclick='window.history.back()') Back
   h1 #{task.description}
-  p #{JSON.stringify(task)}
+  h4 #{`Status: ${task.status}`}
+  table(class='table table-dark table-bordered', id='pendingTaskTable')
+    thead
+      tr
+        th(scope='col') Key
+        th(scope='col') Value
+    tbody
+      each entry in Object.entries(task)
+        tr
+          td #{entry[0]}
+          td #{entry[1]}
+  br/
+  button(type='button', class='btn btn-lg btn-danger pull-right') Delete
+  button(type='button', class='btn btn-lg btn-warning pull-right') Edit
+  button(type='button', class='btn btn-block btn-lg btn-success pull-left') Complete

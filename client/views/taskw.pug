@@ -10,22 +10,26 @@ block content
   +beginTabPanel
     +addFirstTab('List')
       br/
-      table(class='table table-dark table-hover', id='pendingTaskTable')
-        thead
-          tr
-            th(scope='col') Description
-            th(scope='col') Created
-            th(scope='col') Tags
-            th(scope='col') Due
-            th(scope='col') Urgency
-        tbody
-          each task in tasks
-            tr(class='clickable-row', data-href='/taskw/'+task.uuid, style='cursor: pointer')
-              td #{task.description}
-              td #{task.created}
-              td #{task.tags}
-              td #{task.due}
-              td #{task.urgency}
+      +tabBar('Pending', 'All')
+      +beginTabPanel
+        +addFirstTab('Pending')
+          br/
+          table(class='table table-dark table-hover', id='pendingTaskTable')
+            thead
+              tr
+                th(scope='col') Description
+                th(scope='col') Tags
+                th(scope='col') Due
+                th(scope='col') Urgency
+            tbody
+              each task in tasks
+                tr(class='clickable-row', data-href='/taskw/'+task.uuid, style='cursor: pointer')
+                  td #{task.description}
+                  td #{task.tags}
+                  td #{task.due}
+                  td #{task.urgency}
+        +addOtherTab('All')
+          h1 Future home of all tasks list!
     +addOtherTab('Create')
       h1 Future home of the create new task tab!
   script(src='/scripts/taskw/tableRows.js')

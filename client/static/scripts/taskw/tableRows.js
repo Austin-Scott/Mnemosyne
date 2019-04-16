@@ -5,6 +5,6 @@ jQuery(document).ready(function ($) {
         window.location = $(this).data('href')
     })
     $('#pendingTaskTable').DataTable({
-        order: [[4, 'desc']]
+        order: [[3, 'desc']]
     })
 })

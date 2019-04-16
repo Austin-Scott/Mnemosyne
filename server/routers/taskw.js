@@ -4,7 +4,7 @@ import path from 'path'
 import { spawn } from 'child_process'
 
 import t from '../terminal'
-import { getDurationUntilZuluString } from '../dates'
+import { getDurationUntilZuluString, parseZuluTimeString } from '../dates'
 
 const taskw = new express.Router()
 
@@ -73,13 +73,11 @@ export function getPendingTasks() {
             })
             let result = pendingTasks.map((task) => {
                 let dueDate = task.due ? getDurationUntilZuluString(task.due).toString() : ''
-                let creationDate = task.entry ? getDurationUntilZuluString(task.entry).toString() : ''
                 return {
                     description: task.description,
-                    created: creationDate,
                     tags: task.tags ? task.tags.join(', ') : '',
                     due: dueDate,
-                    urgency: task.urgency,
+                    urgency: task.urgency.toFixed(1),
                     uuid: task.uuid
                 }
             })
@@ -95,6 +93,15 @@ export function getSpecificTask(uuid) {
                 return task.uuid==uuid
             })
             if (task) {
+                Object.entries(task).forEach((entry)=>{
+                    let key = entry[0]
+                    let value = entry[1]
+
+                    if(key=='entry' || key=='start' || key=='end' || key=='due' || key=='until' || key=='wait' || key=='modified' || key=='scheduled') {
+                        task[key]=parseZuluTimeString(value).toString()
+                    }
+                })
+
                 resolve(task)
             } else {
                 reject(new Error('The uuid specified does not exist.'))
