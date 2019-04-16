@@ -4,9 +4,9 @@ import bodyParser from 'body-parser'
 import fs from 'fs'
 import path from 'path'
 
-import jrnl from './routers/jrnl.js'
-import taskw from './routers/taskw.js'
-import { getTaskList } from './routers/taskw.js'
+import jrnl from './routers/jrnl'
+import taskw, { getSpecificTask } from './routers/taskw'
+import { getPendingTasks } from './routers/taskw'
 
 const app = express()
 
@@ -28,6 +28,7 @@ app.use((req, res, next) => {
 })
 
 //Check username and password of client
+// Modified from code found here: https://stackoverflow.com/a/33905671
 app.use((req, res, next) => {
     const auth = {login: usr, password: psw}
 
@@ -57,8 +58,15 @@ app.get('/jrnl', (req, res)=>{
     res.render('jrnl', {title: 'jrnl'})
 })
 app.get('/taskw', (req, res)=>{
-    getTaskList().then((taskList)=>{
+    getPendingTasks().then((taskList)=>{
         res.render('taskw', {title: 'Taskwarrior', tasks: taskList})
+    })
+})
+app.get('/taskw/:uuid', (req, res) => {
+    getSpecificTask(req.params.uuid).then((task) => {
+        res.render('taskwTask', {title: task.description, task: task})
+    }).catch((err) => {
+        res.send(err.toString())
     })
 })
 app.get('/timew', (req, res)=>{
