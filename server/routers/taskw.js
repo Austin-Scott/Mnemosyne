@@ -55,13 +55,13 @@ let testJSON =
 
 function getTaskList() {
     return new Promise((resolve, reject) => {
-        /*
+        
         t.terminal(spawntask(['export']), (stdout, stderr, code)=>{
             let result = JSON.parse(stdout)
             resolve(result)
         })
-        */
-        resolve(JSON.parse(testJSON))
+        
+        //resolve(JSON.parse(testJSON))
     })
 }
 

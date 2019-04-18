@@ -10,3 +10,5 @@ node_modules/*
 server.hm
 lexicon.txt
 lexiconFull.txt
+.v8flags-1-4.5.103.35.63a9f0ea7bb98050796b649e85481845.json
+npm-debug.log
