@@ -20,9 +20,14 @@ block content
             td #{entry[0]}
             td #{entry[1]}
   br/
-  button(type='button', class='btn btn-lg btn-danger pull-right', onclick='promptDelete()') Delete
-  button(type='button', class='btn btn-lg btn-warning pull-right') Edit
-  button(type='button', class='btn btn-block btn-lg btn-success pull-left', id='completeTaskButton', onclick='complete()') Complete
+  - if(task.status=='pending')
+    button(type='button', class='btn btn-lg btn-danger pull-right', onclick='promptDelete()') Delete
+    button(type='button', class='btn btn-lg btn-warning pull-right') Edit
+    button(type='button', class='btn btn-block btn-lg btn-success', id='completeTaskButton', onclick='complete()') Complete
+  - else if(task.status=='deleted')
+    button(type='button', class='btn btn-block btn-lg btn-primary', id='unDeleteTaskButton', onclick='unDelete()') Undo Delete
+  - else if(task.status=='completed')
+    button(type='button', class='btn btn-block btn-lg btn-warning', id='unCompleteTaskButton', onclick='unComplete()') Undo Complete
 
 
 block append scripts
