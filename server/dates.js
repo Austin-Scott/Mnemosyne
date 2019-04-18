@@ -31,7 +31,7 @@ class Duration {
         let milliPerMinute = 1000 * 60
         this.minutes = rtz(milliseconds / milliPerMinute)
     }
-    toString() {
+    toRelativeString() {
         if (Math.abs(this.years) > 0) {
             return addTimeUnits(this.years, 'year')
         } else if (Math.abs(this.months) > 0) {
@@ -47,7 +47,6 @@ class Duration {
         }
     }
 }
-
 
 export function parseZuluTimeString(str) {
     let year = Number(str.substr(0, 4))
