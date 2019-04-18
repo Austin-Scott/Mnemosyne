@@ -1,7 +1,10 @@
 extends layouts/layout.pug
 include includes/tabs.pug
+include includes/datetimepicker.pug
+include includes/collapse.pug
 
 block append cdn
+  +addDateTimePickerCode
   script(src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js')
   script(src='https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js')
 
@@ -29,7 +32,30 @@ block content
                   td #{task.due}
                   td #{task.urgency}
         +addOtherTab('All')
-          h1 Future home of all tasks list!
+          br/
+          table(class='table table-dark table-hover', id='allTaskTable')
+            thead
+              tr
+                th(scope='col') Description
+                th(scope='col') Status
+                th(scope='col') End
+            tbody
+              each task in allTasks
+                tr(class='clickable-row', data-href='/taskw/'+task.uuid, style='cursor: pointer')
+                  td #{task.description}
+                  td #{task.status}
+                  td #{task.end}
     +addOtherTab('Create')
-      h1 Future home of the create new task tab!
+      br/
+      label(for='desc') Task Description:
+      input(type='text', class='form-control', id='desc', placeholder='Describe task here')
+      hr/
+      +collapsePanel('advOps', 'Show advanced options')
+        label(for='due') Task due:
+        +addDateTimePicker('dueDate')
+      hr/
+      input(type='button', class='btn btn-lg btn-block btn-success', value='Create task', id='createTaskButton', onclick='create()')
+
+block append scripts
   script(src='/scripts/taskw/tableRows.js')
+  script(src='/scripts/taskw/create.js')

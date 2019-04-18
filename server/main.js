@@ -6,7 +6,7 @@ import path from 'path'
 
 import jrnl from './routers/jrnl'
 import taskw, { getSpecificTask } from './routers/taskw'
-import { getPendingTasks } from './routers/taskw'
+import { getAllTasks } from './routers/taskw'
 
 const app = express()
 
@@ -58,8 +58,8 @@ app.get('/jrnl', (req, res)=>{
     res.render('jrnl', {title: 'jrnl'})
 })
 app.get('/taskw', (req, res)=>{
-    getPendingTasks().then((taskList)=>{
-        res.render('taskw', {title: 'Taskwarrior', tasks: taskList})
+    getAllTasks().then((taskList)=>{
+        res.render('taskw', {title: 'Taskwarrior', tasks: taskList.pending, allTasks: taskList.all})
     })
 })
 app.get('/taskw/:uuid', (req, res) => {

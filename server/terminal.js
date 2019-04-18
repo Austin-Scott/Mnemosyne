@@ -3,10 +3,20 @@ const fs = require('fs')
 function escapeBashCharacters(str) {
     return '"' + str.replace(/(["$`\\])/g, '\\$1') + '"';
 }
-
-function terminal(proc, callback) {
+/**
+ * 
+ * @param {ChildProcessWithoutNullStreams} proc 
+ * @param {function} callback 
+ * @param {String} stdin 
+ */
+function terminal(proc, callback, stdin) {
     let stdout = ''
     let stderr = ''
+    if(stdin!==undefined) {
+        proc.stdin.setEncoding('utf-8')
+        proc.stdin.write(stdin)
+        proc.stdin.end()
+    }
     proc.stdout.on('data', (data) => {
         stdout += data
     })

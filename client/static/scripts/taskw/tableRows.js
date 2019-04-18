@@ -7,4 +7,7 @@ jQuery(document).ready(function ($) {
     $('#pendingTaskTable').DataTable({
         order: [[3, 'desc']]
     })
+    $('#allTaskTable').DataTable({
+        order: [[2, 'desc']]
+    })
 })

@@ -4,7 +4,7 @@ block content
   div(id='confirmDelete', style='display: none')
     h2 Are you sure you want to delete #{task.description}?
     .text-center
-      button(type='button', class='btn btn-lg btn-danger text-center', id='deleteTaskButton', onclick='deleteTask()') Delete
+      button(type='button', class='btn btn-lg btn-danger text-center', id='deleteTaskButton', onclick='deleteTask()') Yes, Delete
   button(type='button', class='btn btn-info', onclick='window.history.back()') Back
   h1 #{task.description}
   h4 #{`Status: ${task.status}`}
@@ -15,9 +15,10 @@ block content
         th(scope='col') Value
     tbody
       each entry in Object.entries(task)
-        tr
-          td #{entry[0]}
-          td #{entry[1]}
+        - if(['entry', 'start', 'end', 'due', 'until', 'wait', 'modified', 'scheduled', 'recur', 'mask', 'imask', 'parent', 'priority', 'depends', 'tags', 'annotation'].find(tag=>tag==entry[0]))
+          tr
+            td #{entry[0]}
+            td #{entry[1]}
   br/
   button(type='button', class='btn btn-lg btn-danger pull-right', onclick='promptDelete()') Delete
   button(type='button', class='btn btn-lg btn-warning pull-right') Edit

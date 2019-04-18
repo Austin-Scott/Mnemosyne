@@ -10,13 +10,13 @@ const taskw = new express.Router()
 
 function modifyTask(uuid, command) {
     return new Promise((resolve, reject)=>{
-        t.terminal(spawntask(command='delete'?['delete', uuid]:[uuid, command]), (stdout, stderr, code)=>{
+        t.terminal(spawntask(command=='delete'?['delete', uuid]:[uuid, command]), (stdout, stderr, code)=>{
             resolve({
                 success: code==0,
                 stdout: stdout,
                 stderr: stderr
             })
-        })
+        }, command=='delete'?'yes\n':undefined)
     })
 }
 
@@ -55,7 +55,7 @@ taskw.post('/create', (req, res)=>{
         })
         return
     }
-    let args = ['create', taskInfo.desc]
+    let args = ['add', taskInfo.desc]
     t.terminal(spawntask(args), (stdout, stderr, code)=>{
         res.json({
             success: code==0,
@@ -86,28 +86,58 @@ function getTaskList() {
     })
 }
 
-/**
- * Returns Promise of Array of pending tasks formated for use in the pending tasks table
- */
-export function getPendingTasks() {
+export function getAllTasks() {
     return new Promise((resolve, reject) => {
         getTaskList().then((list) => {
-            let pendingTasks = list.filter((task) => {
-                return task.status=='pending'
-            })
-            let result = pendingTasks.map((task) => {
-                let dueDate = task.due ? getDurationUntilZuluString(task.due).toRelativeString() : ''
-                return {
-                    description: task.description,
-                    tags: task.tags ? task.tags.join(', ') : '',
-                    due: dueDate,
-                    urgency: task.urgency.toFixed(1),
-                    uuid: task.uuid
-                }
-            })
+            let result={
+                pending: mapPendingTasks(list),
+                all: mapAllTasks(list)
+            }
             resolve(result)
         })
     })
+}
+
+function padZero(num, zeros) {
+    let str = String(num)
+    while(str.length<zeros) {
+        str = '0'+str
+    }
+    return str
+}
+
+function mapAllTasks(list) {
+    let result = list.map((task) => {
+        let endDate = ''
+        if(task.end) {
+            let end = parseZuluTimeString(task.end);
+            endDate=`${padZero(end.getFullYear(), 4)}-${padZero(end.getMonth()+1, 2)}-${padZero(end.getDay(), 2)}`
+        }
+        return {
+            description: task.description,
+            status: task.status,
+            end: endDate,
+            uuid: task.uuid
+        }
+    })
+    return result
+}
+
+function mapPendingTasks(list) {
+    let pendingTasks = list.filter((task) => {
+        return task.status=='pending'
+    })
+    let result = pendingTasks.map((task) => {
+        let dueDate = task.due ? getDurationUntilZuluString(task.due).toRelativeString() : ''
+        return {
+            description: task.description,
+            tags: task.tags ? task.tags.join(', ') : '',
+            due: dueDate,
+            urgency: task.urgency.toFixed(1),
+            uuid: task.uuid
+        }
+    })
+    return result
 }
 
 /**
