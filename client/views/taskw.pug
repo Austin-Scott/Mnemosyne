@@ -51,8 +51,38 @@ block content
       input(type='text', class='form-control', id='desc', placeholder='Describe task here')
       hr/
       +collapsePanel('advOps', 'Show advanced options')
-        label(for='due') Task due:
+        label
+          input(type='checkbox', value='', id='addDueDate')
+          | Add a due date
+        br/
+        label(for='dueDate') Task due:
         +addDateTimePicker('dueDate')
+        label
+          input(type='checkbox', value='', id='shouldRecur')
+          | This task is recurring
+        br/
+        select(class='form-control')
+          option Daily
+          option Weekly
+          option Monthly
+          option Annually
+        hr/
+        label(for='tags') Please add tags:
+          input(type='text', class='form-control', placeholder='tagOne, tagTwo', id='tags')
+        hr/
+        label
+          input(type='checkbox', value='', id='addWaitDate')
+          | Add a wait date
+        br/
+        label(for='waitDate')
+        +addDateTimePicker('waitDate')
+        label
+          input(type='checkbox', value='', id='addUntilDate')
+          | Add an until date
+        br/
+        label(for='untilDate')
+        +addDateTimePicker('untilDate')
+
       hr/
       input(type='button', class='btn btn-lg btn-block btn-success', value='Create task', id='createTaskButton', onclick='create()')
 

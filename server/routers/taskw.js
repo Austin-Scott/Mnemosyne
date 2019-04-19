@@ -11,6 +11,12 @@ const taskw = new express.Router()
 function modifyTask(uuid, command, args) {
     return new Promise((resolve, reject)=>{
         let argList = command=='delete'?['delete', uuid]:[uuid, command]
+        let stdin = undefined
+        if(command=='delete') {
+            stdin = 'yes\n'
+        } else if(command=='modify') {
+            stdin = 'no\n'
+        }
         if(args) {
             argList=argList.concat(args)
         }
@@ -20,7 +26,7 @@ function modifyTask(uuid, command, args) {
                 stdout: stdout,
                 stderr: stderr
             })
-        }, command=='delete'?'yes\n':undefined)
+        }, stdin)
     })
 }
 
