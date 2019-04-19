@@ -32,6 +32,4 @@ You can now interface with your journal by going to "https://localhost" or by en
 Instead of using a cloud storage service such as Google Drive to synchronize multiple copies of your journal across devices this application simplifies the process by centralizing journal.txt to one copy on the server. The client then interacts with this file indirectly via AJAX calls. Since there is only one copy of your journal, you will always have the latest version and you will not have to worry about Google Drive creating merge conflicts if your file ever fails to sync.
 
 ## Planned Features
-Here are some features that I would love to add to this application in the future:
-  * Statistics: See how many entries and words you have been adding to your journal over time
-  * Mood tracking: Add quantitative data about your mood over time to the journal. Then allow viewing this data in the statistics tab
+There is a major update currently being worked on in the development branch. This update will add support for Taskwarrior and Timewarrior as well as improvements to the jrnl interface. Mnemosyne is now aiming to be productivity and time management suite. 
