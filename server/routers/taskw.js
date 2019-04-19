@@ -8,9 +8,13 @@ import { getDurationUntilZuluString, parseZuluTimeString } from '../dates'
 
 const taskw = new express.Router()
 
-function modifyTask(uuid, command) {
+function modifyTask(uuid, command, args) {
     return new Promise((resolve, reject)=>{
-        t.terminal(spawntask(command=='delete'?['delete', uuid]:[uuid, command]), (stdout, stderr, code)=>{
+        let argList = command=='delete'?['delete', uuid]:[uuid, command]
+        if(args) {
+            argList=argList.concat(args)
+        }
+        t.terminal(spawntask(argList), (stdout, stderr, code)=>{
             resolve({
                 success: code==0,
                 stdout: stdout,
@@ -41,7 +45,14 @@ taskw.post('/modify', (req, res)=>{
             res.json(result)
             return
         })
-    }
+    } else if(op.type == 'edit') {
+
+    } else if(op.type == 'makePending') {
+        modifyTask(op.uuid, 'modify', ['status:pending', 'end:']).then((result)=>{
+            res.json(result)
+            return
+        })
+    } 
 
 })
 
@@ -56,6 +67,10 @@ taskw.post('/create', (req, res)=>{
         return
     }
     let args = ['add', taskInfo.desc]
+    if(taskInfo.due) {
+        args.push('due:'+taskInfo.due)
+    }
+    
     t.terminal(spawntask(args), (stdout, stderr, code)=>{
         res.json({
             success: code==0,

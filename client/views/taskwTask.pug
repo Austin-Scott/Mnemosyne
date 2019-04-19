@@ -1,10 +1,6 @@
 extends layouts/layout.pug
 
 block content
-  div(id='confirmDelete', style='display: none')
-    h2 Are you sure you want to delete #{task.description}?
-    .text-center
-      button(type='button', class='btn btn-lg btn-danger text-center', id='deleteTaskButton', onclick='deleteTask()') Yes, Delete
   button(type='button', class='btn btn-info', onclick='window.history.back()') Back
   h1 #{task.description}
   h4 #{`Status: ${task.status}`}
@@ -21,13 +17,13 @@ block content
             td #{entry[1]}
   br/
   - if(task.status=='pending')
-    button(type='button', class='btn btn-lg btn-danger pull-right', onclick='promptDelete()') Delete
+    button(type='button', class='btn btn-lg btn-danger pull-right', id='deleteTaskButton', onclick='deleteTask()') Delete
     button(type='button', class='btn btn-lg btn-warning pull-right') Edit
     button(type='button', class='btn btn-block btn-lg btn-success', id='completeTaskButton', onclick='complete()') Complete
   - else if(task.status=='deleted')
-    button(type='button', class='btn btn-block btn-lg btn-primary', id='unDeleteTaskButton', onclick='unDelete()') Undo Delete
+    button(type='button', class='btn btn-block btn-lg btn-primary', id='unDeleteTaskButton', onclick='makePending()') Undo Delete
   - else if(task.status=='completed')
-    button(type='button', class='btn btn-block btn-lg btn-warning', id='unCompleteTaskButton', onclick='unComplete()') Undo Complete
+    button(type='button', class='btn btn-block btn-lg btn-warning', id='unCompleteTaskButton', onclick='makePending()') Undo Complete
 
 
 block append scripts
