@@ -14,3 +14,6 @@
   * sudo apt-get remove --purge nodejs npm
   * curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
   * sudo apt install nodejs
+
+## Installing jrnl from a linux terminal
+  * pip install jrnl
