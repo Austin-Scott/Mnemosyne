@@ -3,7 +3,7 @@ server.cert
 server.key
 server.pass
 server.usr
-
+server.hm
 
 node_modules/*
 .vs/*
