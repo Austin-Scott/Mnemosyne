@@ -1,4 +1,16 @@
+//- TODO, ask Austin what these files do
 extends layouts/layout.pug
+include includes/tabs.pug
+include includes/datetimepicker.pug
+include includes/collapse.pug
 
 block content
   h1 Future home of the Timewarrior interface!
+  +tabBar('Review', 'Track')
+  +beginTabPanel
+    +addFirstTab('Review')
+      //- content pending
+      p Placeholder content
+    +addOtherTab('Track')
+      //- content pending
+      p placeholder content

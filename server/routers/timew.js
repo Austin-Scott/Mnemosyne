@@ -6,11 +6,11 @@
  */
 
  import express from 'express'
- import fs from 'fs'
- import path from 'path'
- // TODO: learn what these two do (get some doxygen comments)
+//  import fs from 'fs'
+//  import path from 'path'
  import { spawn } from 'child_process'
  import terminal from '../terminal'
+ import {getDurationUntilZuluString, parseZulluTimeString } from '../dates'
 
  const timeWarror = new express.Router()
 
@@ -19,7 +19,7 @@
   * commands that I (may) want to play with:
   * timew start <tag> <tag> <tags are a list>
   * timew stop
-  * timew summary
+  * timew summary (use export)
   * timew continue
   * timew tags
   * timew track <start time (am/pm)> - <end time (am/pm)>
@@ -27,6 +27,7 @@
   *   complex logic to work properly
   * changing previous tasks details is extremely complicated,
   * use the link above to determine what I want to do with that.
+  *   NOTE: EDITING THE PAST IS A STRETCH-GOAL
   * 
   * USEFUL:
   * timew help <command>
@@ -37,3 +38,116 @@
   * time: hh:mm[:ss] seconds is optional, hours in military time
   * can be concatonated: YYYY-MM-DDThh:mm:ss - the 'T' indicates the change
   */
+
+  /**
+   * Handle the start command 
+   * 1. send the start signal
+   * 2. pass all tags as an array
+   */
+  timeWarror.post('/start', (req, res) => {
+    let operation = req.body
+    // make sure the user sent data
+    if (!Array.isArray(operation.args)) {
+      res.json({
+        success: false,
+        stdout: '',
+        stderr: 'Error: args must be passed to the body of the post request, please pass an empty array if no args exist'
+      })
+      return
+    }
+    // operation exists, spawn the command
+    let command = spawn('timew', ['start'].concat(operation.args).concat([':yes', ':quiet']))
+    /**
+     * stdout contains a string that is what was passed back
+     * stderr (should be blank if it worked) contains information
+     * code indicates errors or not
+     */
+    terminal.terminal(command, (stdout, stderr, code) => {
+      res.json({
+        success: (code == 0),
+        stdout: stdout,
+        stderr: stderr
+      })
+      return
+    })
+  })
+
+  /**
+   * Handle the stop command
+   * 1. send the stop command
+   * 2. pass all tags in an array in the post body
+   * Note: if the tags passed do not match a currently
+   * running timer, then the output is going to stderr
+   */
+  timeWarrior.post('/stop', (req, res) => {
+    let operation = req.body
+    // make sure the user sent data,
+    // even if that was an empty array
+    // operation exists, spawn the command
+    if (!Array.isArray(operation.args)) {
+      res.json({
+        success: false,
+        stdout: '',
+        stderr: 'Error: args must be passed to the body of the post request, please pass an empty array if no args exist'
+      })
+      return
+    }
+    let command = spawn('timew', ['stop'].concat(operation.args).concat([':yes', ':quiet']))
+    /**
+     * stdout contains a string that is what was passed back
+     * stderr (should be blank if it worked) contains information
+     * code indicates errors or not
+     */
+    terminal.terminal(command, (stdout, stderr, code) => {
+      res.json({
+        success: (code == 0),
+        stdout: stdout,
+        stderr: stderr
+      })
+      return
+    })
+  })
+
+  /**
+   * Retrive all the data
+   * 
+   * TODO: figure out what to do with the date strings in 
+   * the operation.intervals array
+   */
+  timeWarror.post('/summary', (req, res) => {
+    let operation = req.body
+    if (!Array.isArray(operation.tags)) {
+      res.json({
+        success: false,
+        stdout: '',
+        stderr: 'Error: args must be passed to the body of the post request, please pass an empty array if no args exist'
+      })
+      return
+    }
+    if (!Array.isArray(operation.intervals)) {
+      res.json({
+        success: false,
+        stdout: '',
+        stderr: 'Error: intervals must be passed to the body of the post request, please pass an empty array if no args exist'
+      })
+      return
+    }
+    let arguments = ['export'].concat(operation.intervals).concat(operation.tags)
+    arguments.concat([':yes'])
+    let command = spawn('timew', arguments)
+    terminal.terminal(command, (stdout, stderr, code) => {
+      // stdout has a string which will be the exported JSON, if no error
+      if (Number(code) === 0) {
+        res.send(stdout)
+      }
+      else {
+        res.JSON({
+          success: false,
+          code: code,
+          stdout: stdout,
+          stderr: stderr
+        })
+      }
+    })
+
+  })
