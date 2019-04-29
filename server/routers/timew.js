@@ -10,7 +10,7 @@
 //  import path from 'path'
  import { spawn } from 'child_process'
  import terminal from '../terminal'
- import {getDurationUntilZuluString, parseZulluTimeString } from '../dates'
+ import {getDuration, parseZulluTimeString } from '../dates'
 
  const timeWarror = new express.Router()
 
@@ -27,7 +27,7 @@
   *   complex logic to work properly
   * changing previous tasks details is extremely complicated,
   * use the link above to determine what I want to do with that.
-  *   NOTE: EDITING THE PAST IS A STRETCH-GOAL
+  *   NOTE: EDITING THE PAST USING TRACK IS A STRETCH-GOAL
   * 
   * USEFUL:
   * timew help <command>
@@ -151,3 +151,58 @@
     })
 
   })
+
+  /**
+   * TODO:
+   * add function that returns an array of all active timers
+   * add function that returns an array of all timers
+   *  start, end, elapsed, tags, status
+   *  elapsed and status have to be calculated in here
+   * 
+   * both functions need to convert start and end into human readable strings
+   */
+
+function getAllTimers () {
+  let command = spawn('timew', ['export'])
+  terminal.terminal(command, (stdout, stderr, code) => {
+    // stdout has a string which will be the exported JSON, if no error
+    if (Number(code) === 0) {
+      let timers = JSON.parse(stdout)
+      let formattedTimers = timers.map((timer, index) => {
+        return ({
+          start: parseZulluTimeString(timer.start).toString(),
+          end: ((timer.end) ? parseZulluTimeString(timer.end).toString() : null),
+          ellapsed: (() => {
+            // startDate and endDate are Date objects
+            let startDate = parseZulluTimeString(timer.start)
+            let endDate = parseZulluTimeString(timer.end)
+            let duration = getDuration(startDate, endDate)
+            return duration.toRelativeString()
+          }),
+          tags: ((Array.isArray(timer.tags)) ? timer.tags : []),
+          status: ((timer.end) ? 'Completed' : 'Active')
+        })
+      })
+      return formattedTimers
+    }
+    else {
+      // command failed
+      return false
+    }
+  })
+}
+
+function getActiveTimers () {
+  let command = spawn('timew', ['export'])
+  terminal.terminal(command, (stdout, stderr, code) => {
+    // stdout has a string which will be the exported JSON, if no error
+    if (Number(code) === 0) {
+      let timers = JSON.parse(stdout)
+      let activeTimers = timers.map((timer, index))
+    }
+    else {
+      // command failed
+      return false
+    }
+  })
+}

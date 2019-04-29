@@ -4,13 +4,79 @@ include includes/tabs.pug
 include includes/datetimepicker.pug
 include includes/collapse.pug
 
+block append cdn
+  +addDateTimePickerCode
+  script(src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js')
+  script(src='https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js')
+
 block content
-  h1 Future home of the Timewarrior interface!
-  +tabBar('Review', 'Track')
+  +tabBar('Review', 'Timer')
   +beginTabPanel
     +addFirstTab('Review')
-      //- content pending
-      p Placeholder content
-    +addOtherTab('Track')
-      //- content pending
-      p placeholder content
+      h3 Filters:
+        br/
+        //- add radio buttons for all timers, completed timers, and active timers
+        label(class='filterLabel')
+          input(type='radio', value='all', name='filter', class='filterRadio', checked='')
+          |  All: 
+        label(class='filterLabel') Completed: 
+          input(type='radio', value='completed', name='filter', class='filterRadio')
+        label(class='filterLabel') Active: 
+          input(type='radio', value='active', name='filter', class='filterRadio')
+      table(class='table table-dark table-hover', id='allTimersTable')
+            thead
+              tr
+                th(scope='col') &nbsp;
+                th(scope='col') Start Time
+                th(scope='col') End Time
+                th(scope='col') Elapsed Time
+                th(scope='col') Tags
+                th(scope='col') Status
+            tbody
+              tr
+                td 1
+                td Yesterday
+                td Tomorrow
+                td two days
+                td #{['testing','sample data'].join(', ')}
+                td Active || Complete
+              //- each timer, index in timers
+                tr(class='clickable-row', data-href='timew/summary', style='cursor: pointer')
+                  td #{index + 1}
+                  td #{timer.start}
+                  td #{timer.end && '---'} 
+                  td #{'needs to be calculated...'}
+                  td #{tags.join(', ')}    
+    +addOtherTab('Timer')
+      h1 Add a new timer
+      label Tags: 
+        input(type='text', value='', class='form-control', id="timew-tags", placeholder='tagOne, tagTwo')
+      input(type='button', class='btn btn-lg btn-primary', value='start timer'
+        id='startTimerBtn', onClick='startTask()')
+      //- add functionality to the buttons later
+      table(class='table table-dark table-hover', id='activeTimersTable')
+            thead
+              tr
+                th(scope='col') &nbsp;
+                th(scope='col') Start Time
+                //- th(scope='col') Elapsed Time (stretch goal, live timers in these fields)
+                th(scope='col') Tags
+            tbody
+              tr
+                td 1
+                td Arbitrary time
+                td #{['Running','falling'].join(', ')}
+                td
+                  input(type='button', class='btn btn-sm btn-info', value='end timer'
+                  onClick=`endTask(${1})`)
+              //- each timer, index in activeTimers
+                tr(class='clickable-row', style='cursor: pointer')
+                  td #{index+1}
+                  td #{timer.start}
+                  td #{timer.tags.join(', ')}
+                  td
+                    input(type='button', class='btn btn-sm btn-info', value='End Timer'
+                    onClick=`endTask(${index})`)
+
+block append scripts
+  script(src='/scripts/timew/tableRows.js')

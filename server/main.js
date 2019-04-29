@@ -70,6 +70,7 @@ app.get('/taskw/:uuid', (req, res) => {
     })
 })
 app.get('/timew', (req, res)=>{
+    // TODO: also pass timers and active timers
     res.render('timew', {title: 'Timewarrior'})
 })
 
