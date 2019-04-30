@@ -13,16 +13,6 @@ block content
   +tabBar('Review', 'Timer')
   +beginTabPanel
     +addFirstTab('Review')
-      h3 Filters:
-        br/
-        //- add radio buttons for all timers, completed timers, and active timers
-        label(class='filterLabel')
-          input(type='radio', value='all', name='filter', class='filterRadio', checked='')
-          |  All: 
-        label(class='filterLabel') Completed: 
-          input(type='radio', value='completed', name='filter', class='filterRadio')
-        label(class='filterLabel') Active: 
-          input(type='radio', value='active', name='filter', class='filterRadio')
       table(class='table table-dark table-hover', id='allTimersTable')
             thead
               tr
@@ -33,20 +23,14 @@ block content
                 th(scope='col') Tags
                 th(scope='col') Status
             tbody
-              tr
-                td 1
-                td Yesterday
-                td Tomorrow
-                td two days
-                td #{['testing','sample data'].join(', ')}
-                td Active || Complete
-              //- each timer, index in timers
+              each timer, index in timers
                 tr(class='clickable-row', data-href='timew/summary', style='cursor: pointer')
                   td #{index + 1}
                   td #{timer.start}
-                  td #{timer.end && '---'} 
-                  td #{'needs to be calculated...'}
-                  td #{tags.join(', ')}    
+                  td #{timer.end} 
+                  td #{timer.elapsed}
+                  td #{timer.tags.join(', ')}
+                  td #{timer.status}
     +addOtherTab('Timer')
       h1 Add a new timer
       label Tags: 
@@ -62,14 +46,7 @@ block content
                 //- th(scope='col') Elapsed Time (stretch goal, live timers in these fields)
                 th(scope='col') Tags
             tbody
-              tr
-                td 1
-                td Arbitrary time
-                td #{['Running','falling'].join(', ')}
-                td
-                  input(type='button', class='btn btn-sm btn-info', value='end timer'
-                  onClick=`endTask(${1})`)
-              //- each timer, index in activeTimers
+              each timer, index in activeTimers
                 tr(class='clickable-row', style='cursor: pointer')
                   td #{index+1}
                   td #{timer.start}

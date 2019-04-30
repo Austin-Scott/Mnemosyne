@@ -7,6 +7,8 @@ import path from 'path'
 import jrnl from './routers/jrnl'
 import taskw, { getSpecificTask } from './routers/taskw'
 import { getAllTasks } from './routers/taskw'
+import timew from './routers/timew'
+import { getAllTimers, getActiveTimers } from './routers/timew'
 
 const app = express()
 
@@ -49,6 +51,7 @@ app.use((req, res, next) => {
 //Respond to AJAX API requests
 app.use('/jrnlAPI', jrnl)
 app.use('/taskwAPI', taskw)
+app.use('/timewAPI', timew)
 
 //Render views
 app.get('/', (req, res)=>{
@@ -70,8 +73,11 @@ app.get('/taskw/:uuid', (req, res) => {
     })
 })
 app.get('/timew', (req, res)=>{
-    // TODO: also pass timers and active timers
-    res.render('timew', {title: 'Timewarrior'})
+    getAllTimers().then((allTimers) => {
+        getActiveTimers().then((activeTimersArr) => {
+            res.render('timew', {title: 'Timewarrior', activeTimers: activeTimersArr, timers: allTimers})
+        })
+    })
 })
 
 //Serve static files
