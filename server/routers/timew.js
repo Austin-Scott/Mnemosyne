@@ -129,7 +129,7 @@ timeWarrior.post('/summary', (req, res) => {
         return ({
           start: parseZulluTimeString(timer.start).toString(),
           end: ((timer.end) ? parseZulluTimeString(timer.end).toString() : null),
-          ellapsed: (() => {
+          elapsed: (() => {
             if (!timer.end) {
               return null
             }
@@ -160,7 +160,7 @@ timeWarrior.post('/summary', (req, res) => {
  * the objects in the array contain:
  * 1. the start time as a human readable string
  * 2. the end time as a human readable string (or '--' if it doesn't exist)
- * 3. the time ellapsed as a human readable string (or '--' if end is doesn't exist)
+ * 3. the time elapsed as a human readable string (or '--' if end is doesn't exist)
  * 4. the tags for the timer as an array of strings (the array may be empty)
  * 5. the status of the timer ('active' or 'complete')
  */
@@ -178,24 +178,24 @@ export function getAllTimers() {
           let startStr = startDate.toLocaleString('en-US')
           let endDate = null
           let endStr = '---'
-          let ellapsedTime = '---'
+          let elapsedTime = '---'
           let tagsArr = ((Array.isArray(timer.tags)) ? timer.tags : [])
           let statusStr = ''
           if (timer.end) {
-            //timer.end exists, which mean we can get end and ellapsed time
+            //timer.end exists, which mean we can get end and elapsed time
             endDate = parseZuluTimeString(timer.end)
             endStr = endDate.toLocaleString('en-US')
-            ellapsedTime = getDuration(startDate, endDate).toRelativeString()
+            elapsedTime = getDuration(startDate, endDate).toRelativeString()
             statusStr = 'Completed'
           } else {
             endDate = '---'
-            ellapsedTime = '---'
+            elapsedTime = '---'
             statusStr = 'Active'
           }
           return ({
             start: startStr,
             end: endStr,
-            ellapsed: ellapsedTime,
+            elapsed: elapsedTime,
             tags: tagsArr,
             status: statusStr
           })
