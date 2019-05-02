@@ -50,10 +50,12 @@ block content
                 tr(class='clickable-row', style='cursor: pointer')
                   td #{index+1}
                   td #{timer.start}
+                  //- td (where ellapsed time would go for stretch goals)
                   td #{timer.tags.join(', ')}
                   td
                     input(type='button', class='btn btn-sm btn-info', value='End Timer'
-                    onClick=`endTask(${index})`)
+                    onClick=`endTask('${timer.tags.join(', ')}')`)
 
 block append scripts
   script(src='/scripts/timew/tableRows.js')
+  script(src='/scripts/timew/timers.js')
