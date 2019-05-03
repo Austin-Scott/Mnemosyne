@@ -3,7 +3,8 @@
  *        that has the input tags.
  * @param {string} tags An string encoding an array of tags
  */
-function endTask(tags) {
+function endTimer(tags) {
+  alert(`endTask entered. Tags = ${tags}`)
   // turning the string into an array
   let tagsArr = tags.split(', ')
   // make a request to the API to end the task selected
@@ -14,10 +15,10 @@ function endTask(tags) {
       args: tagsArr
     },
     success: (success, stdout, stderr) => {
-      // IDK what to do with this...
+      location.reload()
     },
-    error: (success, stdout, stderr) => {
-      // TODO ask Austin what I should do with this.
+    error: (httpRequest, error) => {
+      alert(`Error connecting to API:\n${error}`)
     },
     dataType: 'json',
     timeout: 10000
@@ -28,27 +29,27 @@ function endTask(tags) {
  * @brief sends a post request to the API to start a timer
  * @return none
  */
-function startTask() {
+function startTimer() {
   let tagsInput = document.getElementById('timew-tags')
   let tagsStr = tagsInput.value
   let tags = tagsStr.split(',')
-  tags.array.forEach(element => {
+  tags.forEach((element) => {
     // Cleaning the input of whitespace
-    element.string.trim()
-    // Input doesn't need to be sanitize because that
+    element.trim()
+    // Input doesn't need to be sanitized because that
     // is monitored server side, but that would go here.
   })
   $.ajax({
     type: 'POST',
-    url: '/timewAPI/stop',
+    url: '/timewAPI/start',
     data: {
       args: tags
     },
     success: (success, stdout, stderr) => {
-      // WIP
+      location.reload()
     },
-    error: (success, stdout, stderr) => {
-      // WIP
+    error: (httpRequest, error) => {
+      alert(`Error connecting to API:\n${error}`)
     },
     dataType: 'json',
     timeout: 10000

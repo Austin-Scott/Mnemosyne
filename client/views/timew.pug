@@ -24,7 +24,7 @@ block content
                 th(scope='col') Status
             tbody
               each timer, index in timers
-                tr(class='clickable-row', data-href='timew/summary', style='cursor: pointer')
+                tr
                   td #{index + 1}
                   td #{timer.start}
                   td #{timer.end} 
@@ -36,7 +36,7 @@ block content
       label Tags: 
         input(type='text', value='', class='form-control', id="timew-tags", placeholder='tagOne, tagTwo')
       input(type='button', class='btn btn-lg btn-primary', value='start timer'
-        id='startTimerBtn', onClick='startTask()')
+        id='startTimerBtn', onClick='startTimer()')
       //- add functionality to the buttons later
       table(class='table table-dark table-hover', id='activeTimersTable')
             thead
@@ -47,14 +47,14 @@ block content
                 th(scope='col') Tags
             tbody
               each timer, index in activeTimers
-                tr(class='clickable-row', style='cursor: pointer')
+                tr
                   td #{index+1}
                   td #{timer.start}
                   //- td (where ellapsed time would go for stretch goals)
                   td #{timer.tags.join(', ')}
                   td
                     input(type='button', class='btn btn-sm btn-info', value='End Timer'
-                    onClick=`endTask('${timer.tags.join(', ')}')`)
+                    onClick=`endTimer('${timer.tags.join(', ')}')`)
 
 block append scripts
   script(src='/scripts/timew/tableRows.js')
