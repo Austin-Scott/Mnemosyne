@@ -4,7 +4,6 @@
  * @param {string} tags An string encoding an array of tags
  */
 function endTimer(tags) {
-  alert(`endTask entered. Tags = ${tags}`)
   // turning the string into an array
   let tagsArr = tags.split(', ')
   // make a request to the API to end the task selected
@@ -32,7 +31,8 @@ function endTimer(tags) {
 function startTimer() {
   let tagsInput = document.getElementById('timew-tags')
   let tagsStr = tagsInput.value
-  let tags = tagsStr.split(',')
+  if (tagsStr != ''){
+    let tags = tagsStr.split(',')
   tags.forEach((element) => {
     // Cleaning the input of whitespace
     element.trim()
@@ -54,4 +54,8 @@ function startTimer() {
     dataType: 'json',
     timeout: 10000
   })
+  } else {
+    // Tell the user to put in a tag
+    alert('Please give some tags as an array of comma separated values')
+  }
 }
