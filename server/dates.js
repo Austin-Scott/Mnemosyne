@@ -13,6 +13,7 @@ function rtz(num) {
 
 class Duration {
     constructor(milliseconds) {
+        this.milliseconds = milliseconds
         let milliPerYear = 1000 * 60 * 60 * 24 * 365
         this.years = rtz(milliseconds / milliPerYear)
         milliseconds -= this.years * milliPerYear
@@ -30,6 +31,8 @@ class Duration {
         milliseconds -= this.hours * milliPerHour
         let milliPerMinute = 1000 * 60
         this.minutes = rtz(milliseconds / milliPerMinute)
+        let milliPerSecond = 1000
+        this.seconds = rtz(milliseconds / milliPerSecond)
     }
     toRelativeString() {
         if (Math.abs(this.years) > 0) {
@@ -42,8 +45,12 @@ class Duration {
             return addTimeUnits(this.days, 'day')
         } else if (Math.abs(this.hours) > 0) {
             return addTimeUnits(this.hours, 'hour')
-        } else {
+        } else if (Math.abs(this.minutes) > 0) {
             return addTimeUnits(this.minutes, 'minute')
+        } else if (Math.abs(this.seconds) > 0) {
+            return addTimeUnits(this.seconds, 'second')
+        } else {
+            return addTimeUnits(this.milliseconds, 'millisecond')
         }
     }
 }

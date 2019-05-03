@@ -46,13 +46,19 @@ timeWarrior.post('/start', (req, res) => {
     return
   }
   // operation exists, spawn the command
-  let command = spawn('timew', ['start'].concat(operation.args).concat([':yes', ':quiet']))
+  let command
+  if (operation.args.length > 0) {
+    command = spawn('timew', ['start'].concat(operation.args).concat([':yes']))
+  } else {
+    command = spawn('timew', ['start', ':yes'])
+  }
   /**
    * stdout contains a string that is what was passed back
    * stderr (should be blank if it worked) contains information
    * code indicates errors or not
    */
   terminal.terminal(command, (stdout, stderr, code) => {
+    process.stdout.write(`/start returned code: ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}\n`)
     res.json({
       success: (code == 0),
       stdout: stdout,
@@ -89,6 +95,7 @@ timeWarrior.post('/stop', (req, res) => {
    * code indicates errors or not
    */
   terminal.terminal(command, (stdout, stderr, code) => {
+    process.stdout.write(`/stop returned code: ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}\n`)
     res.json({
       success: (code == 0),
       stdout: stdout,
