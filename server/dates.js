@@ -1,8 +1,18 @@
+/**
+ * 
+ * @param {Number} amount The quantitative amount to display. The "10" part of "10 minutes".
+ * @param {String} units Non-plural form of the units. Example: "minute"
+ * @returns {String} String with properly formatted time units concatenated.  
+ */
 function addTimeUnits(amount, units) {
     return `${Math.abs(amount)} ${units}` + (Math.abs(amount) > 1 ? 's' : '') + (amount >= 0 ? '' : ' ago')
 }
 
-//Round towards zero
+/**
+ * 
+ * @param {Number} num Number to round towards zero.
+ * @returns {Number} Number rounded towards zero. The absolution value of this number will be less than or equal to num. 
+ */
 function rtz(num) {
     if (num > 0) {
         return Math.floor(num)
@@ -11,7 +21,14 @@ function rtz(num) {
     }
 }
 
+/**
+ * Class that describes durations between two time points. 
+ */
 class Duration {
+    /**
+     * 
+     * @param {Number} milliseconds Duration in milliseconds. Can be negative.
+     */
     constructor(milliseconds) {
         let milliPerYear = 1000 * 60 * 60 * 24 * 365
         this.years = rtz(milliseconds / milliPerYear)
@@ -31,6 +48,9 @@ class Duration {
         let milliPerMinute = 1000 * 60
         this.minutes = rtz(milliseconds / milliPerMinute)
     }
+    /**
+     * @returns Human readable string describing the duration using the most coast units greater than zero
+     */
     toRelativeString() {
         if (Math.abs(this.years) > 0) {
             return addTimeUnits(this.years, 'year')
@@ -47,7 +67,10 @@ class Duration {
         }
     }
 }
-
+/**
+ * 
+ * @param {String} str String in zulu time format. "20190503T161432" 
+ */
 export function parseZuluTimeString(str) {
     let year = Number(str.substr(0, 4))
     let month = Number(str.substr(4, 2))-1
@@ -58,11 +81,21 @@ export function parseZuluTimeString(str) {
     return new Date(Date.UTC(year, month, day, hour, minute, second))
 }
 
-//Pass Date() objects representing now and then
+/**
+ * 
+ * @param {Date} now 
+ * @param {Date} then 
+ * @returns {Duration} Duration describing the time period between now and then. Then can be in the future or in the past.
+ */
 export function getDuration(now, then) {
     return new Duration(then.getTime()-now.getTime())
 }
 
+/**
+ * 
+ * @param {String} str String with a zulu encoded time stamp. "20190503T161432"  
+ * @returns {Duration} Duration object representing the time between right now and the date described in the string.
+ */
 export function getDurationUntilZuluString(str) {
     return getDuration(new Date(Date.now()), parseZuluTimeString(str))
 }

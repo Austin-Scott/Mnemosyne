@@ -11,7 +11,11 @@ const jrnl = new express.Router()
 
 const lexicon = loadLexicon()
 
-
+/**
+ * 
+ * @param {Array} args Array of Strings to be passed as arguments to jrnl
+ * @returns {ChildProcessWithoutNullStreams} Reference to the launched instance of jrnl 
+ */
 function spawnjrnl(args) {
     if (process.platform == 'linux') {
         return spawn('jrnl', args, { shell: true, env: { HOME: t.home } })
@@ -20,6 +24,9 @@ function spawnjrnl(args) {
     }
 }
 
+/**
+ * @returns {Object} Object with a key for each word in the lexicon.
+ */
 function loadLexicon() {
     let lexiconStr = ''
     try {
@@ -84,6 +91,12 @@ function loadLexicon() {
     return result
 }
 
+/**
+ * 
+ * @param {String} word Word to check if exists in the lexicon.
+ * @param {Object} result Object containing the list of different sentiments and their hit counts.
+ * @returns {Object} Result but modified with the results of the lexicon search. 
+ */
 function analyzeSentimentWord(word, result) {
     word = word.toLowerCase()
     if (!('data' in result)) {
@@ -128,6 +141,11 @@ function analyzeSentimentWord(word, result) {
     return result
 }
 
+/**
+ * 
+ * @param {Array} words Array of string of the words that you want to be analyzed.
+ * @returns {Object} Object containing the results of the lexicon search. 
+ */
 function analyzeSentimentWords(words) {
     let result = {
         data: {
@@ -150,6 +168,12 @@ function analyzeSentimentWords(words) {
     return result
 }
 
+/**
+ * 
+ * @param {Object} res1 Sentiment analysis search result object
+ * @param {Object} res2 Sentiment analysis search result object
+ * @returns {Object} re1 and re2 merged together
+ */
 function addSentimentResults(res1, res2) {
     let result = {
         data: {
@@ -181,6 +205,11 @@ function addSentimentResults(res1, res2) {
     return result
 }
 
+/**
+ * 
+ * @param {Number} x Number between 0 and 1 to be modified with sentiment normalization curve
+ * @returns {Number} The normalized value.
+ */
 function sentimentNormalization(x) {
     if (x <= 0.0)
         return 0.0
@@ -188,7 +217,12 @@ function sentimentNormalization(x) {
         return 1.0
     return (Math.pow(0.04, x) - 1.0) / (-0.96)
 }
-
+/**
+ * 
+ * @param {Object} result Sentiment analysis search result object 
+ * @param {Function} funct Sentiment normalization function
+ * @returns {Object} Sentiment analysis search result object with summary information.
+ */
 function computeSentimentSummary(result, funct) {
     result.summary = {
         polarity: 0,
@@ -215,12 +249,19 @@ function computeSentimentSummary(result, funct) {
     return result
 }
 
+/**
+ * 
+ * @param {String} str Paragraph text that needs to be splitted into and array of individual words.
+ * @returns {Array} Array of strings of the individual words from str.
+ */
 function splitIntoWords(str) {
     let a = str.match(/\b(\w+)'?(\w+)?\b/g)
     return a !== null ? a : []
 }
 
-
+/**
+ * Handle create new entry request.
+ */
 jrnl.post('/create', (req, res) => {
     console.log('Create entry request received')
 
@@ -240,6 +281,9 @@ jrnl.post('/create', (req, res) => {
     }
 })
 
+/**
+ * Handle statistics request
+ */
 jrnl.get('/statistics', (req, res) => {
     console.log('Statistics request received')
 
@@ -314,6 +358,9 @@ jrnl.get('/statistics', (req, res) => {
 
 })
 
+/**
+ * Handle search jrnl request
+ */
 jrnl.post('/search', (req, res) => {
     console.log('Search request received')
 

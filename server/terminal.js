@@ -1,5 +1,10 @@
 const fs = require('fs')
 
+/**
+ * 
+ * @param {String} str Unsanitized user input that will be passed to the terminal. 
+ * @returns {String} Sanitized version of the same input.
+ */
 function escapeBashCharacters(str) {
     return '"' + str.replace(/(["$`\\])/g, '\\$1') + '"';
 }

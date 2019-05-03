@@ -8,6 +8,12 @@ import { getDurationUntilZuluString, parseZuluTimeString } from '../dates'
 
 const taskw = new express.Router()
 
+/**
+ * 
+ * @param {String} uuid Universally unique identifer of the task that you want to modify
+ * @param {String} command Operation you wish to perform. Can be 'done', 'delete', 'modify', or 'edit'
+ * @param {Array} args Array of strings of extra arguments that you with to pass to TaskWarrior
+ */
 function modifyTask(uuid, command, args) {
     return new Promise((resolve, reject)=>{
         let argList = command=='delete'?['delete', uuid]:[uuid, command]
@@ -30,6 +36,9 @@ function modifyTask(uuid, command, args) {
     })
 }
 
+/**
+ * Handle modify task request
+ */
 taskw.post('/modify', (req, res)=>{
     let op = req.body
     if(!op.type || !op.uuid) {
@@ -62,6 +71,9 @@ taskw.post('/modify', (req, res)=>{
 
 })
 
+/**
+ * Handle create new task request
+ */
 taskw.post('/create', (req, res)=>{
     let taskInfo = req.body
     if(taskInfo.desc===undefined) {
@@ -87,6 +99,11 @@ taskw.post('/create', (req, res)=>{
     })
 })
 
+/**
+ * 
+ * @param {Array} args Array of Strings to pass to TaskWarrior 
+ * @param {String} stdin Any input to pass to TaskWarrior via stdin. Example: 'Yes\n' to answer a yes/no prompt.
+ */
 function spawntask(args, stdin) {
     if (process.platform == 'linux') {
         return spawn('task', args, { shell: true, env: { HOME: t.home } })
@@ -97,6 +114,7 @@ function spawntask(args, stdin) {
 
 /**
  * Returns Promise of Array of all tasks (Pending, Completed, Deleted, etc.) in Taskwarrior
+ * @returns {Promise} Promise of array of all tasks in TaskWarrior
  */
 function getTaskList() {
     return new Promise((resolve, reject) => {
@@ -107,6 +125,9 @@ function getTaskList() {
     })
 }
 
+/**
+ * @returns {Promise} Promise of all the tasks in TaskWarrior sorted into all and pending subcatogories.
+ */
 export function getAllTasks() {
     return new Promise((resolve, reject) => {
         getTaskList().then((list) => {
@@ -119,6 +140,12 @@ export function getAllTasks() {
     })
 }
 
+/**
+ * 
+ * @param {Number} num Number to have zeros added to the left side.
+ * @param {Number} zeros Minimal length of the returned string. Extra spaces will be padded with zeros on the left side.
+ * @returns {String} String of num with extra zeros padded to the left side.
+ */
 function padZero(num, zeros) {
     let str = String(num)
     while(str.length<zeros) {
@@ -127,6 +154,11 @@ function padZero(num, zeros) {
     return str
 }
 
+/**
+ * 
+ * @param {Array} list Array of tasks
+ * @returns {Array} Array of tasks only with their ddescriptions, status, end, and uuid remaining. 
+ */
 function mapAllTasks(list) {
     let result = list.map((task) => {
         let endDate = ''
@@ -144,6 +176,11 @@ function mapAllTasks(list) {
     return result
 }
 
+/**
+ * 
+ * @param {Array} list Array of tasks
+ * @returns {Array} Array of tasks with only description, tags, due, urgency, uuid remaining
+ */
 function mapPendingTasks(list) {
     let pendingTasks = list.filter((task) => {
         return task.status=='pending'
@@ -164,6 +201,7 @@ function mapPendingTasks(list) {
 /**
  *  Returns Promise of object representing a single task with a specific UUID. Dates get formatted in human-readable strings.  
  * @param {String} uuid 
+ * @returns {Object} Object of the task with the requested uuid
  */
 export function getSpecificTask(uuid) {
     return new Promise((resolve, reject) => {
