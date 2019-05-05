@@ -60,8 +60,11 @@ taskw.post('/modify', (req, res)=>{
             res.json(result)
             return
         })
-    } else if(op.type == 'edit') {
-
+    } else if(op.type == 'update') {
+        modifyTask(op.uuid, 'modify', [op.description]).then((result)=>{
+            res.json(result)
+            return
+        })
     } else if(op.type == 'makePending') {
         modifyTask(op.uuid, 'modify', ['status:pending', 'end:']).then((result)=>{
             res.json(result)
@@ -76,6 +79,9 @@ taskw.post('/modify', (req, res)=>{
  */
 taskw.post('/create', (req, res)=>{
     let taskInfo = req.body
+    console.log('Create new task request received')
+    console.log(taskInfo)
+
     if(taskInfo.desc===undefined) {
         res.json({
             success: false,

@@ -1,6 +1,18 @@
 extends layouts/layout.pug
+include includes/datetimepicker.pug
+
+block append cdn
+  +addDateTimePickerCode
 
 block content
+  //Edit task form
+  div(id='editTaskForm', style='display: none')
+    label(for='desc') Change task description:
+    input(type='text', class='form-control', id='desc', value=task.description)
+    br/
+    button(type='button', class='btn btn-block btn-lg btn-success', id='updateTaskButton', onclick='updateTask()') Update Task
+  
+  //Task details
   button(type='button', class='btn btn-info', onclick='window.history.back()') Back
   h1 #{task.description}
   h4 #{`Status: ${task.status}`}
@@ -16,10 +28,11 @@ block content
             td #{entry[0]}
             td #{entry[1]}
   br/
-  - if(task.status=='pending')
+  - if(task.status=='pending' || task.status=='recurring')
     button(type='button', class='btn btn-lg btn-danger pull-right', id='deleteTaskButton', onclick='deleteTask()') Delete
-    button(type='button', class='btn btn-lg btn-warning pull-right') Edit
-    button(type='button', class='btn btn-block btn-lg btn-success', id='completeTaskButton', onclick='complete()') Complete
+    button(type='button', class='btn btn-lg btn-warning pull-right', id='editTaskButton', onclick='showEditTaskModal()') Edit
+    - if(task.status!='recurring')
+      button(type='button', class='btn btn-block btn-lg btn-success', id='completeTaskButton', onclick='complete()') Complete
   - else if(task.status=='deleted')
     button(type='button', class='btn btn-block btn-lg btn-primary', id='unDeleteTaskButton', onclick='makePending()') Undo Delete
   - else if(task.status=='completed')
