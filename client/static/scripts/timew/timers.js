@@ -17,7 +17,7 @@ function endTimer(tags) {
       location.reload()
     },
     error: (httpRequest, error) => {
-      alert(`Error connecting to API:\n${error}`)
+      showModal('Error', `Error connecting to API:\n${error}`)
     },
     dataType: 'json',
     timeout: 10000
@@ -49,13 +49,13 @@ function startTimer() {
       location.reload()
     },
     error: (httpRequest, error) => {
-      alert(`Error connecting to API:\n${error}`)
+      showModal('Error', `Error connecting to API:\n${error}`)
     },
     dataType: 'json',
     timeout: 10000
   })
   } else {
     // Tell the user to put in a tag
-    alert('Please give some tags as an array of comma separated values')
+    showModal('Error', 'Please give some tags as an array of comma separated values')
   }
 }
