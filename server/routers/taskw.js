@@ -61,7 +61,7 @@ taskw.post('/modify', (req, res)=>{
             return
         })
     } else if(op.type == 'update') {
-        modifyTask(op.uuid, 'modify', [op.description]).then((result)=>{
+        modifyTask(op.uuid, 'modify', [t.escapeBashCharacters(op.description)]).then((result)=>{
             res.json(result)
             return
         })
@@ -90,10 +90,10 @@ taskw.post('/create', (req, res)=>{
         })
         return
     }
-    let args = ['add', taskInfo.desc]
+    let args = ['add', t.escapeBashCharacters(taskInfo.desc)]
 
     if(taskInfo.dueDate.length==15) {
-        args.push('due:'+taskInfo.dueDate)
+        args.push(t.escapeBashCharacters('due:'+taskInfo.dueDate))
         if(taskInfo.recurr.length>0) {
             switch(taskInfo.recurr) {
                 case 'Daily':
@@ -115,16 +115,16 @@ taskw.post('/create', (req, res)=>{
     }
 
     if(taskInfo.waitDate.length==15) {
-        args.push('wait:'+taskInfo.waitDate)
+        args.push(t.escapeBashCharacters('wait:'+taskInfo.waitDate))
     }
 
     if(taskInfo.untilDate.length==15) {
-        args.push('until:'+taskInfo.untilDate)
+        args.push(t.escapeBashCharacters('until:'+taskInfo.untilDate))
     }
     
     taskInfo.tags.forEach((tag)=>{
         if(tag.length>0) {
-            args.push('+'+tag)
+            args.push(t.escapeBashCharacters('+'+tag))
         }
     })
 
