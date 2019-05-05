@@ -115,7 +115,7 @@ taskw.post('/create', (req, res)=>{
     }
 
     if(taskInfo.waitDate.length==15) {
-        args.push('wait:'+taskInfo.wait)
+        args.push('wait:'+taskInfo.waitDate)
     }
 
     if(taskInfo.untilDate.length==15) {
