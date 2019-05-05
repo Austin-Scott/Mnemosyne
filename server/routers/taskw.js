@@ -60,8 +60,11 @@ taskw.post('/modify', (req, res)=>{
             res.json(result)
             return
         })
-    } else if(op.type == 'edit') {
-
+    } else if(op.type == 'update') {
+        modifyTask(op.uuid, 'modify', [op.description]).then((result)=>{
+            res.json(result)
+            return
+        })
     } else if(op.type == 'makePending') {
         modifyTask(op.uuid, 'modify', ['status:pending', 'end:']).then((result)=>{
             res.json(result)
@@ -76,6 +79,9 @@ taskw.post('/modify', (req, res)=>{
  */
 taskw.post('/create', (req, res)=>{
     let taskInfo = req.body
+    console.log('Create new task request received')
+    console.log(taskInfo)
+
     if(taskInfo.desc===undefined) {
         res.json({
             success: false,
@@ -85,10 +91,43 @@ taskw.post('/create', (req, res)=>{
         return
     }
     let args = ['add', taskInfo.desc]
-    if(taskInfo.due) {
-        args.push('due:'+taskInfo.due)
+
+    if(taskInfo.dueDate.length==15) {
+        args.push('due:'+taskInfo.dueDate)
+        if(taskInfo.recurr.length>0) {
+            switch(taskInfo.recurr) {
+                case 'Daily':
+                args.push('recur:daily')
+                break
+                case 'Weekly':
+                args.push('recur:weekly')
+                break
+                case 'Monthly':
+                args.push('recur:monthly')
+                break
+                case 'Annually':
+                args.push('recur:yearly')
+                break
+                default:
+
+            }
+        }
+    }
+
+    if(taskInfo.waitDate.length==15) {
+        args.push('wait:'+taskInfo.wait)
+    }
+
+    if(taskInfo.untilDate.length==15) {
+        args.push('until:'+taskInfo.untilDate)
     }
     
+    taskInfo.tags.forEach((tag)=>{
+        if(tag.length>0) {
+            args.push('+'+tag)
+        }
+    })
+
     t.terminal(spawntask(args), (stdout, stderr, code)=>{
         res.json({
             success: code==0,
