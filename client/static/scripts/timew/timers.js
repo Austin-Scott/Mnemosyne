@@ -33,27 +33,25 @@ function startTimer() {
   let tagsStr = tagsInput.value
   if (tagsStr != ''){
     let tags = tagsStr.split(',')
-  tags.forEach((element) => {
-    // Cleaning the input of whitespace
-    element.trim()
-    // Input doesn't need to be sanitized because that
-    // is monitored server side, but that would go here.
-  })
-  $.ajax({
-    type: 'POST',
-    url: '/timewAPI/start',
-    data: {
-      args: tags
-    },
-    success: (success, stdout, stderr) => {
-      location.reload()
-    },
-    error: (httpRequest, error) => {
-      showModal('Error', `Error connecting to API:\n${error}`)
-    },
-    dataType: 'json',
-    timeout: 10000
-  })
+    // trims whitespace on the end of tag strings
+    let tagsMap = tags.map((tag) => { return tag.trim() })
+    // prevent tags that are all whitespace characters (causes timew error 255)
+    tags = tagsMap.filter((str) => { return (/\S/.test(str)) })
+    $.ajax({
+      type: 'POST',
+      url: '/timewAPI/start',
+      data: {
+        args: tags
+      },
+      success: (success, stdout, stderr) => {
+        location.reload()
+      },
+      error: (httpRequest, error) => {
+        showModal('Error', `Error connecting to API:\n${error}`)
+      },
+      dataType: 'json',
+      timeout: 10000
+    })
   } else {
     // Tell the user to put in a tag
     showModal('Error', 'Please give some tags as an array of comma separated values')
