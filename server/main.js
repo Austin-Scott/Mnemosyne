@@ -8,7 +8,7 @@ import jrnl from './routers/jrnl'
 import taskw, { getSpecificTask } from './routers/taskw'
 import { getAllTasks } from './routers/taskw'
 import timew from './routers/timew'
-import { getAllTimers, getActiveTimers } from './routers/timew'
+import { getAllTimers } from './routers/timew'
 
 const app = express()
 
@@ -74,9 +74,7 @@ app.get('/taskw/:uuid', (req, res) => {
 })
 app.get('/timew', (req, res)=>{
     getAllTimers().then((allTimers) => {
-        getActiveTimers().then((activeTimersArr) => {
-            res.render('timew', {title: 'Timewarrior', activeTimers: activeTimersArr, timers: allTimers})
-        })
+        res.render('timew', {title: 'Timewarrior', timers: allTimers})
     })
 })
 
