@@ -20,7 +20,6 @@ function padZero(num, zeros) {
 function reformatDatePicker(unformatted) {
     let dateParser = /(\d{2})\/(\d{2})\/(\d{4}) (\d{1,2}):(\d{2}) (.{2})/
     let result = dateParser.exec(unformatted)
-    console.log(result.length)
     if(result.length==7) {
         let month = result[1]
         let day = result[2]

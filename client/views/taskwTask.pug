@@ -26,7 +26,11 @@ block content
         - if(['entry', 'start', 'end', 'due', 'until', 'wait', 'modified', 'scheduled', 'recur', 'mask', 'imask', 'parent', 'priority', 'depends', 'tags', 'annotation'].find(tag=>tag==entry[0]))
           tr
             td #{entry[0]}
-            td #{entry[1]}
+            - if(['parent', 'depends'].find(tag=>tag==entry[0]))
+              td
+                a(href='/taskw/'+entry[1]) View linked task
+            - else
+              td #{entry[1]}
   br/
   - if(task.status=='pending' || task.status=='recurring')
     button(type='button', class='btn btn-lg btn-danger pull-right', id='deleteTaskButton', onclick='deleteTask()') Delete
