@@ -45,10 +45,13 @@ timeWarrior.post('/start', (req, res) => {
     })
     return
   }
-  // operation exists, spawn the command
+  // sanitize args of whitespace (which causes error 255 in timewarrior)
+  let tags = operation.args.map((tag) => { return tag.trim() })
+  tags = tags.filter((str) => { return (/\S/.test(str)) })
+  // args has been sanitized, spawn the command
   let command
-  if (operation.args.length > 0) {
-    command = spawn('timew', ['start'].concat(operation.args).concat([':yes']))
+  if (tags.length > 0) {
+    command = spawn('timew', ['start'].concat(tags).concat([':yes']))
   } else {
     command = spawn('timew', ['start', ':yes'])
   }
@@ -88,7 +91,11 @@ timeWarrior.post('/stop', (req, res) => {
     })
     return
   }
-  let command = spawn('timew', ['stop'].concat(operation.args).concat([':yes', ':quiet']))
+  // sanitize args of whitespace (which causes error 255 in timewarrior)
+  let tags = operation.args.map((tag) => { return tag.trim() })
+  tags = tags.filter((str) => { return (/\S/.test(str)) })
+  // args has been sanitized, spawn the command
+  let command = spawn('timew', ['stop'].concat(tags).concat([':yes', ':quiet']))
   /**
    * stdout contains a string that is what was passed back
    * stderr (should be blank if it worked) contains information
@@ -126,8 +133,15 @@ timeWarrior.post('/summary', (req, res) => {
     })
     return
   }
-  // let arguments = ['export'].concat(operation.intervals).concat(operation.tags).concat([':yes'])
-  let command = spawn('timew', ['export'].concat(operation.intervals).concat(operation.tags).concat([':yes']))
+  // sanitize args of whitespace (which causes error 255 in timewarrior)
+  let tags = operation.tags.map((tag) => { return tag.trim() })
+  tags = tags.filter((str) => { return (/\S/.test(str)) })
+  // sanitize args of whitespace (which causes error 255 in timewarrior)
+  let intervals = operation.intervals.map((interval) => { return interval.trim() })
+  intervals = intervals.filter((str) => { return (/\S/.test(str)) })
+  // args has been sanitized, spawn the command
+  // args has been sanitized, spawn the command
+  let command = spawn('timew', ['export'].concat(intervals).concat(tags).concat([':yes']))
   terminal.terminal(command, (stdout, stderr, code) => {
     // stdout has a string which will be the exported JSON, if no error
     if (Number(code) === 0) {
