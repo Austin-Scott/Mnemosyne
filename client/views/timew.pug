@@ -1,4 +1,3 @@
-//- TODO, ask Austin what these files do
 extends layouts/layout.pug
 include includes/tabs.pug
 include includes/datetimepicker.pug
@@ -41,5 +40,4 @@ block content
                   when "Completed"
                     p #{timer.status}
 block append scripts
-  script(src='/scripts/timew/tableRows.js')
   script(src='/scripts/timew/timers.js')

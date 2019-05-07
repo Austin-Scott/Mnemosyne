@@ -11,15 +11,9 @@ $('#searchForm input').keydown(function (e) {
 
 //Performs a search of journal entries via AJAX
 function search() {
-    let button = document.getElementById('searchButton')
-    let initialValue = button.value
-    button.value = 'Searching...'
-    button.setAttribute('disabled', 'true')
 
-    $.ajax({
-        type: 'POST',
-        url: '/jrnlAPI/search',
-        data: {
+    postFromButton('searchButton', 'Searching...', '/jrnlAPI/search',
+        {
             terms: document.getElementById('terms').value,
             limitByNum: document.getElementById('limitByNum').checked,
             num: document.getElementById('num').value,
@@ -29,11 +23,8 @@ function search() {
             filterEarlier: document.getElementById('filterEarlier').value,
             filterLater: document.getElementById('filterLater').value
         },
-        success: (data, status) => {
-            button.value = initialValue
-            button.removeAttribute('disabled')
-            if (status == 'success') {
-                let result = ''
+        (data)=>{
+            let result = ''
                 let entries = data.entries
                 if (entries) {
                     entries.forEach((entry) => {
@@ -75,22 +66,7 @@ function search() {
 
                     return
                 }
-            }
-            showModal('Error', `Something went wrong. Please try again in a little bit.<br />More info:<br />data: ${JSON.stringify(data)} status: ${status}`)
-        },
-        error: (jqXHR, status) => {
-            button.value = initialValue
-            button.removeAttribute('disabled')
-
-            if (status == 'timeout') {
-                showModal('Error', 'The server took too long to respond. Please try again in a little bit.')
-                return
-            }
-            showModal('Error', `Your request was unable to be completed: ${status}`)
-        },
-        dataType: 'json',
-        timeout: 10000
-    })
+        })
 }
 
 function radarJson(entries, label) {

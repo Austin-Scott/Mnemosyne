@@ -7,21 +7,13 @@ function endTimer(tags) {
   // turning the string into an array
   let tagsArr = tags.split(', ')
   // make a request to the API to end the task selected
-  $.ajax({
-    type: 'POST',
-    url: '/timewAPI/stop',
-    data: {
+  post('/timewAPI/stop',
+    {
       args: tagsArr
     },
-    success: (success, stdout, stderr) => {
+    ()=>{
       location.reload()
-    },
-    error: (httpRequest, error) => {
-      showModal('Error', `Error connecting to API:\n${error}`)
-    },
-    dataType: 'json',
-    timeout: 10000
-  })
+    })
 }
 
 /**
@@ -37,23 +29,24 @@ function startTimer() {
     let tagsMap = tags.map((tag) => { return tag.trim() })
     // prevent tags that are all whitespace characters (causes timew error 255)
     tags = tagsMap.filter((str) => { return (/\S/.test(str)) })
-    $.ajax({
-      type: 'POST',
-      url: '/timewAPI/start',
-      data: {
+
+    post('/timewAPI/start',
+      {
         args: tags
       },
-      success: (success, stdout, stderr) => {
+      ()=>{
         location.reload()
-      },
-      error: (httpRequest, error) => {
-        showModal('Error', `Error connecting to API:\n${error}`)
-      },
-      dataType: 'json',
-      timeout: 10000
-    })
+      })
   } else {
     // Tell the user to put in a tag
     showModal('Error', 'Please give some tags as an array of comma separated values')
   }
 }
+
+//Taken from: https://stackoverflow.com/a/17147973
+jQuery(document).ready(function ($) {
+  // Convert table with id of 'allTimersTable' into a DataTable
+  $('#allTimersTable').DataTable({
+      order: [[0, 'desc']] //asc
+  })
+})
