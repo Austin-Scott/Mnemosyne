@@ -1,4 +1,5 @@
-const fs = require('fs')
+import fs from 'fs'
+import chalk from 'chalk'
 
 /**
  * 
@@ -29,6 +30,9 @@ function terminal(proc, callback, stdin) {
         stderr += data
     })
     proc.on('close', (code) => {
+        console.log(chalk.yellowBright(code))
+        console.log(chalk.greenBright(stdout))
+        console.log(chalk.redBright(stderr))
         callback(stdout, stderr, code)
     })
 }

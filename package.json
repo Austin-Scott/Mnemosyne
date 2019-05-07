@@ -23,10 +23,11 @@
     "@babel/core": "^7.4.3",
     "@babel/node": "^7.2.2",
     "@babel/preset-env": "^7.4.3",
+    "chalk": "^2.4.2",
     "express": "^4.16.4",
     "fuzzy-search": "^3.0.1",
-    "wordcount": "^1.1.1",
     "nodemon": "^1.18.11",
-    "pug": "^2.0.3"
+    "pug": "^2.0.3",
+    "wordcount": "^1.1.1"
   }
 }

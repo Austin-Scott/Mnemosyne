@@ -23,12 +23,6 @@ app.set('view engine', 'pug')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-//Log all incoming requests to the console
-app.use((req, res, next) => {
-    console.log(`${req.method} request received for: ${req.originalUrl}`)
-    next()
-})
-
 //Check username and password of client
 // Modified from code found here: https://stackoverflow.com/a/33905671
 app.use((req, res, next) => {

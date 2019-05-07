@@ -1,6 +1,7 @@
 import express from 'express'
 import { spawn } from 'child_process'
 import terminal from '../terminal'
+import chalk from 'chalk'
 import { getDuration, parseZuluTimeString } from '../dates'
 
 const timeWarrior = new express.Router()
@@ -34,7 +35,26 @@ const timeWarrior = new express.Router()
  * 1. send the start signal
  * 2. pass all tags as an array
  */
+
+/**
+ * 
+ * @param {Array} args Array of Strings to pass to TimeWarrior 
+ */
+function spawntimew(args) {
+  args=args.map((arg)=>{
+    return terminal.escapeBashCharacters(arg)
+  })
+
+  console.log(chalk.blueBright('timew '+args.join(' ')))
+  if (process.platform == 'linux') {
+      return spawn('timew', args, { shell: true, env: { HOME: terminal.home } })
+  } else {
+      return spawn('timew', args, { shell: true })
+  }
+}
+
 timeWarrior.post('/start', (req, res) => {
+  console.log('Timewarrior start request received')
   let operation = req.body
   // make sure the user sent data
   if (!Array.isArray(operation.args)) {
@@ -51,9 +71,9 @@ timeWarrior.post('/start', (req, res) => {
   // args has been sanitized, spawn the command
   let command
   if (tags.length > 0) {
-    command = spawn('timew', ['start'].concat(tags).concat([':yes']))
+    command = spawntimew(['start'].concat(tags).concat([':yes']))
   } else {
-    command = spawn('timew', ['start', ':yes'])
+    command = spawntimew(['start', ':yes'])
   }
   /**
    * stdout contains a string that is what was passed back
@@ -61,7 +81,6 @@ timeWarrior.post('/start', (req, res) => {
    * code indicates errors or not
    */
   terminal.terminal(command, (stdout, stderr, code) => {
-    process.stdout.write(`/start returned code: ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}\n`)
     res.json({
       success: (code == 0),
       stdout: stdout,
@@ -79,6 +98,7 @@ timeWarrior.post('/start', (req, res) => {
  * running timer, then the output is going to stderr
  */
 timeWarrior.post('/stop', (req, res) => {
+  console.log('Timewarrior stop request received')
   let operation = req.body
   // make sure the user sent data,
   // even if that was an empty array
@@ -95,14 +115,13 @@ timeWarrior.post('/stop', (req, res) => {
   let tags = operation.args.map((tag) => { return tag.trim() })
   tags = tags.filter((str) => { return (/\S/.test(str)) })
   // args has been sanitized, spawn the command
-  let command = spawn('timew', ['stop'].concat(tags).concat([':yes', ':quiet']))
+  let command = spawntimew(['stop'].concat(tags))
   /**
    * stdout contains a string that is what was passed back
    * stderr (should be blank if it worked) contains information
    * code indicates errors or not
    */
   terminal.terminal(command, (stdout, stderr, code) => {
-    process.stdout.write(`/stop returned code: ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}\n`)
     res.json({
       success: (code == 0),
       stdout: stdout,
@@ -116,6 +135,7 @@ timeWarrior.post('/stop', (req, res) => {
  * Retrive all the data
  */
 timeWarrior.post('/summary', (req, res) => {
+  console.log('Timewarrior summary request received')
   let operation = req.body
   if (!Array.isArray(operation.tags)) {
     res.json({
@@ -141,7 +161,7 @@ timeWarrior.post('/summary', (req, res) => {
   intervals = intervals.filter((str) => { return (/\S/.test(str)) })
   // args has been sanitized, spawn the command
   // args has been sanitized, spawn the command
-  let command = spawn('timew', ['export'].concat(intervals).concat(tags).concat([':yes']))
+  let command = spawntimew(['export'].concat(intervals).concat(tags))
   terminal.terminal(command, (stdout, stderr, code) => {
     // stdout has a string which will be the exported JSON, if no error
     if (Number(code) === 0) {
@@ -187,41 +207,46 @@ timeWarrior.post('/summary', (req, res) => {
  */
 export function getAllTimers() {
   return new Promise ((resolve, reject) => {
-    let command = spawn('timew', ['export'])
+    let command = spawntimew(['export'])
     terminal.terminal(command, (stdout, stderr, code) => {
       // stdout has a string which will be the exported JSON, if no error
       if (Number(code) === 0) {
-        let timers = JSON.parse(stdout)
-        let formattedTimers = timers.map((timer) => {
-          // Generate the objects that describe the timer
-          // Start always exists, so we can compare the two
-          let startDate = parseZuluTimeString(timer.start)
-          let startStr = startDate.toLocaleString('en-US')
-          let endDate = null
-          let endStr = '---'
-          let elapsedTime = '---'
-          let tagsArr = ((Array.isArray(timer.tags)) ? timer.tags : [])
-          let statusStr = ''
-          if (timer.end) {
-            //timer.end exists, which mean we can get end and elapsed time
-            endDate = parseZuluTimeString(timer.end)
-            endStr = endDate.toLocaleString('en-US')
-            elapsedTime = getDuration(startDate, endDate).toRelativeString()
-            statusStr = 'Completed'
-          } else {
-            endDate = '---'
-            elapsedTime = '---'
-            statusStr = 'Active'
-          }
-          return ({
-            start: startStr,
-            end: endStr,
-            elapsed: elapsedTime,
-            tags: tagsArr,
-            status: statusStr
-          })
-        })
-        resolve(formattedTimers)
+        try {
+             let timers = JSON.parse(stdout)
+             let formattedTimers = timers.map((timer) => {
+             // Generate the objects that describe the timer
+             // Start always exists, so we can compare the two
+             let startDate = parseZuluTimeString(timer.start)
+             let startStr = startDate.toLocaleString('en-US')
+             let endDate = null
+             let endStr = '---'
+             let elapsedTime = '---'
+             let tagsArr = ((Array.isArray(timer.tags)) ? timer.tags : [])
+             let statusStr = ''
+             if (timer.end) {
+               //timer.end exists, which mean we can get end and elapsed time
+               endDate = parseZuluTimeString(timer.end)
+               endStr = endDate.toLocaleString('en-US')
+               elapsedTime = getDuration(startDate, endDate).toRelativeString()
+               statusStr = 'Completed'
+             } else {
+               endDate = '---'
+               elapsedTime = '---'
+               statusStr = 'Active'
+             }
+             return ({
+               start: startStr,
+               end: endStr,
+               elapsed: elapsedTime,
+               tags: tagsArr,
+               status: statusStr
+             })
+           })
+           resolve(formattedTimers)
+        } catch(err) {
+          console.log(chalk.red('Error: '+err))
+          reject(err)
+        }
       } else {
         reject(new Error(`failed to run command: ${command}`))
       }
@@ -237,7 +262,7 @@ export function getAllTimers() {
  */
 export function getActiveTimers() {
   return new Promise ((resolve, reject) => {
-    let command = spawn('timew', ['export'])
+    let command = spawntimew(['export'])
     terminal.terminal(command, (stdout, stderr, code) => {
       // stdout has a string which will be the exported JSON, if no error
       if (Number(code) === 0) {

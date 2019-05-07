@@ -1,8 +1,8 @@
 import express from 'express'
 import FuzzySearch from 'fuzzy-search'
 import wordcount from 'wordcount'
+import chalk from 'chalk'
 import fs from 'fs'
-import path from 'path'
 import { spawn } from 'child_process'
 
 import t from '../terminal.js'
@@ -12,11 +12,12 @@ const jrnl = new express.Router()
 const lexicon = loadLexicon()
 
 /**
- * 
- * @param {Array} args Array of Strings to be passed as arguments to jrnl
- * @returns {ChildProcessWithoutNullStreams} Reference to the launched instance of jrnl 
- */
+* 
+* @param {Array} args Array of Strings to be passed as arguments to jrnl
+* @returns {ChildProcessWithoutNullStreams} Reference to the launched instance of jrnl 
+*/
 function spawnjrnl(args) {
+    console.log(chalk.blueBright('jrnl '+args.join(' ')))
     if (process.platform == 'linux') {
         return spawn('jrnl', args, { shell: true, env: { HOME: t.home } })
     } else {
@@ -25,8 +26,8 @@ function spawnjrnl(args) {
 }
 
 /**
- * @returns {Object} Object with a key for each word in the lexicon.
- */
+* @returns {Object} Object with a key for each word in the lexicon.
+*/
 function loadLexicon() {
     let lexiconStr = ''
     try {
@@ -55,35 +56,35 @@ function loadLexicon() {
             } else {
                 switch (token) {
                     case 'ang':
-                        result[word].anger = true
-                        break
+                    result[word].anger = true
+                    break
                     case 'ant':
-                        result[word].anticipation = true
-                        break
+                    result[word].anticipation = true
+                    break
                     case 'd':
-                        result[word].disgust = true
-                        break
+                    result[word].disgust = true
+                    break
                     case 'f':
-                        result[word].fear = true
-                        break
+                    result[word].fear = true
+                    break
                     case 'j':
-                        result[word].joy = true
-                        break
+                    result[word].joy = true
+                    break
                     case 'n':
-                        result[word].negative = true
-                        break
+                    result[word].negative = true
+                    break
                     case 'p':
-                        result[word].positive = true
-                        break
+                    result[word].positive = true
+                    break
                     case 'sa':
-                        result[word].sadness = true
-                        break
+                    result[word].sadness = true
+                    break
                     case 'su':
-                        result[word].surprise = true
-                        break
+                    result[word].surprise = true
+                    break
                     case 't':
-                        result[word].trust = true
-                        break
+                    result[word].trust = true
+                    break
                 }
             }
         })
@@ -92,11 +93,11 @@ function loadLexicon() {
 }
 
 /**
- * 
- * @param {String} word Word to check if exists in the lexicon.
- * @param {Object} result Object containing the list of different sentiments and their hit counts.
- * @returns {Object} Result but modified with the results of the lexicon search. 
- */
+* 
+* @param {String} word Word to check if exists in the lexicon.
+* @param {Object} result Object containing the list of different sentiments and their hit counts.
+* @returns {Object} Result but modified with the results of the lexicon search. 
+*/
 function analyzeSentimentWord(word, result) {
     word = word.toLowerCase()
     if (!('data' in result)) {
@@ -118,34 +119,34 @@ function analyzeSentimentWord(word, result) {
         let wordData = lexicon[word]
         result.data.matches++
         if (wordData.anger)
-            result.data.anger++
+        result.data.anger++
         if (wordData.anticipation)
-            result.data.anticipation++
+        result.data.anticipation++
         if (wordData.disgust)
-            result.data.disgust++
+        result.data.disgust++
         if (wordData.fear)
-            result.data.fear++
+        result.data.fear++
         if (wordData.joy)
-            result.data.joy++
+        result.data.joy++
         if (wordData.negative)
-            result.data.negative++
+        result.data.negative++
         if (wordData.positive)
-            result.data.positive++
+        result.data.positive++
         if (wordData.sadness)
-            result.data.sadness++
+        result.data.sadness++
         if (wordData.surprise)
-            result.data.surprise++
+        result.data.surprise++
         if (wordData.trust)
-            result.data.trust++
+        result.data.trust++
     }
     return result
 }
 
 /**
- * 
- * @param {Array} words Array of string of the words that you want to be analyzed.
- * @returns {Object} Object containing the results of the lexicon search. 
- */
+* 
+* @param {Array} words Array of string of the words that you want to be analyzed.
+* @returns {Object} Object containing the results of the lexicon search. 
+*/
 function analyzeSentimentWords(words) {
     let result = {
         data: {
@@ -169,11 +170,11 @@ function analyzeSentimentWords(words) {
 }
 
 /**
- * 
- * @param {Object} res1 Sentiment analysis search result object
- * @param {Object} res2 Sentiment analysis search result object
- * @returns {Object} re1 and re2 merged together
- */
+* 
+* @param {Object} res1 Sentiment analysis search result object
+* @param {Object} res2 Sentiment analysis search result object
+* @returns {Object} re1 and re2 merged together
+*/
 function addSentimentResults(res1, res2) {
     let result = {
         data: {
@@ -201,28 +202,28 @@ function addSentimentResults(res1, res2) {
     result.data.sadness = res1.data.sadness + res2.data.sadness
     result.data.surprise = res1.data.surprise + res2.data.surprise
     result.data.trust = res1.data.trust + res2.data.trust
-
+    
     return result
 }
 
 /**
- * 
- * @param {Number} x Number between 0 and 1 to be modified with sentiment normalization curve
- * @returns {Number} The normalized value.
- */
+* 
+* @param {Number} x Number between 0 and 1 to be modified with sentiment normalization curve
+* @returns {Number} The normalized value.
+*/
 function sentimentNormalization(x) {
     if (x <= 0.0)
-        return 0.0
+    return 0.0
     if (x >= 1.0)
-        return 1.0
+    return 1.0
     return (Math.pow(0.04, x) - 1.0) / (-0.96)
 }
 /**
- * 
- * @param {Object} result Sentiment analysis search result object 
- * @param {Function} funct Sentiment normalization function
- * @returns {Object} Sentiment analysis search result object with summary information.
- */
+* 
+* @param {Object} result Sentiment analysis search result object 
+* @param {Function} funct Sentiment normalization function
+* @returns {Object} Sentiment analysis search result object with summary information.
+*/
 function computeSentimentSummary(result, funct) {
     result.summary = {
         polarity: 0,
@@ -250,28 +251,27 @@ function computeSentimentSummary(result, funct) {
 }
 
 /**
- * 
- * @param {String} str Paragraph text that needs to be splitted into and array of individual words.
- * @returns {Array} Array of strings of the individual words from str.
- */
+* 
+* @param {String} str Paragraph text that needs to be splitted into and array of individual words.
+* @returns {Array} Array of strings of the individual words from str.
+*/
 function splitIntoWords(str) {
     let a = str.match(/\b(\w+)'?(\w+)?\b/g)
     return a !== null ? a : []
 }
 
 /**
- * Handle create new entry request.
- */
+* Handle create new entry request.
+*/
 jrnl.post('/create', (req, res) => {
-    console.log('Create entry request received')
-
+    console.log('Create jrnl entry request received')
+    
     let entry = req.body.entry || ''
     if (entry) {
         let args = [t.escapeBashCharacters(req.body.entry)]
-
+        
         t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
-            console.log(`Entry created- stdout: "${stdout}" stderr: "${stderr}"`)
-
+            
             let result = { success: true, stdo: stdout, stde: stderr }
             res.json(result)
         })
@@ -282,90 +282,98 @@ jrnl.post('/create', (req, res) => {
 })
 
 /**
- * Handle statistics request
- */
+* Handle statistics request
+*/
 jrnl.get('/statistics', (req, res) => {
-    console.log('Statistics request received')
-
+    console.log('jrnl statistics request received')
+    
     let result = {
         totalCharacterCount: 0,
         totalWordCount: 0,
         totalEntryCount: 0,
         byYear: {}
     }
-
+    
     t.terminal(spawnjrnl(['--export', 'json']), (stdout, stderr, code) => {
-        const journal = JSON.parse(stdout)
-        journal.entries.forEach((entry) => {
-            let dateTokens = entry.date.split('-')
-            let year = dateTokens[0]
-            let month = dateTokens[1]
-            if (month[0] == '0')
+        try {
+            const journal = JSON.parse(stdout)
+            journal.entries.forEach((entry) => {
+                let dateTokens = entry.date.split('-')
+                let year = dateTokens[0]
+                let month = dateTokens[1]
+                if (month[0] == '0')
                 month = month[1]
-            let day = dateTokens[2]
-            if (day[0] == '0')
+                let day = dateTokens[2]
+                if (day[0] == '0')
                 day = day[1]
-
-            let contents = entry.title + entry.body
-            let wordCount = wordcount(contents)
-
-            result.totalCharacterCount += contents.length
-            result.totalWordCount += wordCount
-            result.totalEntryCount++
-
-            if (result.byYear[year] == undefined) {
-                result.byYear[year] = {
-                    totalCharacterCount: 0,
-                    totalWordCount: 0,
-                    totalEntryCount: 0,
-                    byMonth: {}
+                
+                let contents = entry.title + entry.body
+                let wordCount = wordcount(contents)
+                
+                result.totalCharacterCount += contents.length
+                result.totalWordCount += wordCount
+                result.totalEntryCount++
+                
+                if (result.byYear[year] == undefined) {
+                    result.byYear[year] = {
+                        totalCharacterCount: 0,
+                        totalWordCount: 0,
+                        totalEntryCount: 0,
+                        byMonth: {}
+                    }
                 }
-            }
-
-            result.byYear[year].totalCharacterCount += contents.length
-            result.byYear[year].totalWordCount += wordCount
-            result.byYear[year].totalEntryCount++
-
-            if (result.byYear[year].byMonth[month] == undefined) {
-                result.byYear[year].byMonth[month] = {
-                    totalCharacterCount: 0,
-                    totalWordCount: 0,
-                    totalEntryCount: 0,
-                    byDay: {}
+                
+                result.byYear[year].totalCharacterCount += contents.length
+                result.byYear[year].totalWordCount += wordCount
+                result.byYear[year].totalEntryCount++
+                
+                if (result.byYear[year].byMonth[month] == undefined) {
+                    result.byYear[year].byMonth[month] = {
+                        totalCharacterCount: 0,
+                        totalWordCount: 0,
+                        totalEntryCount: 0,
+                        byDay: {}
+                    }
                 }
-            }
-
-            result.byYear[year].byMonth[month].totalCharacterCount += contents.length
-            result.byYear[year].byMonth[month].totalWordCount += wordCount
-            result.byYear[year].byMonth[month].totalEntryCount++
-
-            if (result.byYear[year].byMonth[month].byDay[day] == undefined) {
-                result.byYear[year].byMonth[month].byDay[day] = {
-                    totalCharacterCount: 0,
-                    totalWordCount: 0,
-                    totalEntryCount: 0
+                
+                result.byYear[year].byMonth[month].totalCharacterCount += contents.length
+                result.byYear[year].byMonth[month].totalWordCount += wordCount
+                result.byYear[year].byMonth[month].totalEntryCount++
+                
+                if (result.byYear[year].byMonth[month].byDay[day] == undefined) {
+                    result.byYear[year].byMonth[month].byDay[day] = {
+                        totalCharacterCount: 0,
+                        totalWordCount: 0,
+                        totalEntryCount: 0
+                    }
                 }
-            }
-
-            result.byYear[year].byMonth[month].byDay[day].totalCharacterCount += contents.length
-            result.byYear[year].byMonth[month].byDay[day].totalWordCount += wordCount
-            result.byYear[year].byMonth[month].byDay[day].totalEntryCount++
-        })
-
-        res.json(result)
-        console.log('Statistics sent')
+                
+                result.byYear[year].byMonth[month].byDay[day].totalCharacterCount += contents.length
+                result.byYear[year].byMonth[month].byDay[day].totalWordCount += wordCount
+                result.byYear[year].byMonth[month].byDay[day].totalEntryCount++
+            })
+            
+            res.json(result)
+            console.log('Statistics sent')
+        } catch(err) {
+            console.log(chalk.red('Error: '+err))
+            res.json({
+                success: false,
+                stdout: '',
+                stderr: err.toString()
+            })
+        }
+        
     })
-
+    
 })
 
 /**
- * Handle search jrnl request
- */
+* Handle search jrnl request
+*/
 jrnl.post('/search', (req, res) => {
-    console.log('Search request received')
-
-    console.log(req.body)
-
+    console.log('jrnl search request received')
+    
     let terms = req.body.terms || ''
     let limitByNum = req.body.limitByNum || 'true'
     let num = req.body.num || 1
@@ -374,9 +382,9 @@ jrnl.post('/search', (req, res) => {
     let useAnd = req.body.useAnd || 'false'
     let filterEarlier = req.body.filterEarlier || ''
     let filterLater = req.body.filterLater || ''
-
+    
     let useSearch = (terms !== '')
-
+    
     let args = []
     if (!useSearch && limitByNum == 'true') {
         args.push('-n', num)
@@ -393,38 +401,47 @@ jrnl.post('/search', (req, res) => {
     if (useAnd == 'true') {
         args.push('-and')
     }
-
+    
     tags = tags.split(' ');
     tags.forEach((tag) => {
         if (tag !== '')
-            args.push(t.escapeBashCharacters(tag))
+        args.push(t.escapeBashCharacters(tag))
     })
-
+    
     args.push('--export', 'json')
-
-    console.log(args)
-
+    
+    
     t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
-        let entries = JSON.parse(stdout)
-        if (useSearch) {
-            const searcher = new FuzzySearch(entries.entries, ['title', 'body'], { sort: true })
-            const results = searcher.search(terms)
-            const end = num > results.length ? results.length : num
-            entries.entries = limitByNum == 'true' ? results.slice(0, end) : results.length
+        try {
+            let entries = JSON.parse(stdout)
+            if (useSearch) {
+                const searcher = new FuzzySearch(entries.entries, ['title', 'body'], { sort: true })
+                const results = searcher.search(terms)
+                const end = num > results.length ? results.length : num
+                entries.entries = limitByNum == 'true' ? results.slice(0, end) : results.length
+            }
+            
+            let overallSentiment = null
+            entries.entries = entries.entries.map((entry) => {
+                entry.sentiment = computeSentimentSummary(addSentimentResults(analyzeSentimentWords(splitIntoWords(entry.title)), analyzeSentimentWords(splitIntoWords(entry.body))), sentimentNormalization)
+                overallSentiment = overallSentiment !== null ? addSentimentResults(overallSentiment, entry.sentiment) : entry.sentiment
+                return entry
+            })
+            
+            entries.sentiment = computeSentimentSummary(overallSentiment, sentimentNormalization)
+            
+            res.json(entries)
+            
+            console.log('Search results sent')
+        } catch(err) {
+            console.log(chalk.red('Error: '+err))
+            res.json({
+                success: false,
+                stdout: '',
+                stderr: err.toString()
+            })
         }
-
-        let overallSentiment = null
-        entries.entries = entries.entries.map((entry) => {
-            entry.sentiment = computeSentimentSummary(addSentimentResults(analyzeSentimentWords(splitIntoWords(entry.title)), analyzeSentimentWords(splitIntoWords(entry.body))), sentimentNormalization)
-            overallSentiment = overallSentiment !== null ? addSentimentResults(overallSentiment, entry.sentiment) : entry.sentiment
-            return entry
-        })
-
-        entries.sentiment = computeSentimentSummary(overallSentiment, sentimentNormalization)
-
-        res.json(entries)
-
-        console.log('Search results sent')
+        
     })
 })
 

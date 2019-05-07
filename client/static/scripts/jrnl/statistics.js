@@ -154,6 +154,12 @@ function statistics() {
         success: (data, status) => {
             button.value = 'Refresh'
             button.removeAttribute('disabled')
+
+            if(!data.success && data.stderr) {
+                showModal('Error', data.stderr)
+                return
+            }
+
             if (status == 'success') {
                 let innerHTML = '<h5>All time totals:</h5>'
                 innerHTML += `<ul><li>Characters: ${data.totalCharacterCount}</li><li>Words: ${data.totalWordCount}</li><li>Entries: ${data.totalEntryCount}</li><li>Average words per entry: ${(data.totalWordCount / data.totalEntryCount).toFixed(2)}</li></ul>`

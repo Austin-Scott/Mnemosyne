@@ -24,6 +24,11 @@ function search() {
             filterLater: document.getElementById('filterLater').value
         },
         (data)=>{
+            if(!data.success && data.stderr) {
+                showModal('Error', data.stderr)
+                return
+            }
+
             let result = ''
                 let entries = data.entries
                 if (entries) {

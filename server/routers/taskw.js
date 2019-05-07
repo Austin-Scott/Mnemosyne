@@ -1,7 +1,6 @@
 import express from 'express'
-import fs from 'fs'
-import path from 'path'
 import { spawn } from 'child_process'
+import chalk from 'chalk'
 
 import t from '../terminal'
 import { getDurationUntilZuluString, parseZuluTimeString } from '../dates'
@@ -40,6 +39,7 @@ function modifyTask(uuid, command, args) {
  * Handle modify task request
  */
 taskw.post('/modify', (req, res)=>{
+    console.log('Modify task request received')
     let op = req.body
     if(!op.type || !op.uuid) {
         res.json({
@@ -144,6 +144,7 @@ taskw.post('/create', (req, res)=>{
  * @param {String} stdin Any input to pass to TaskWarrior via stdin. Example: 'Yes\n' to answer a yes/no prompt.
  */
 function spawntask(args, stdin) {
+    console.log(chalk.blueBright('task '+args.join(' ')))
     if (process.platform == 'linux') {
         return spawn('task', args, { shell: true, env: { HOME: t.home } })
     } else {
@@ -158,8 +159,13 @@ function spawntask(args, stdin) {
 function getTaskList() {
     return new Promise((resolve, reject) => {
         t.terminal(spawntask(['export']), (stdout, stderr, code)=>{
-            let result = JSON.parse(stdout)
-            resolve(result)
+            try {
+                let result = JSON.parse(stdout)
+                resolve(result)
+            } catch(err) {
+                console.log(chalk.red('Error: '+err))
+                reject(err)
+            }
         })
     })
 }

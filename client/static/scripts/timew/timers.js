@@ -11,8 +11,12 @@ function endTimer(tags) {
     {
       args: tagsArr
     },
-    ()=>{
-      location.reload()
+    (data)=>{
+      if(data.success) {
+        location.reload()
+      } else {
+        showModal("Error", 'Operation failed: '+data.stderr)
+      }
     })
 }
 
@@ -23,24 +27,19 @@ function endTimer(tags) {
 function startTimer() {
   let tagsInput = document.getElementById('timew-tags')
   let tagsStr = tagsInput.value
-  if (tagsStr != ''){
-    let tags = tagsStr.split(',')
-    // trims whitespace on the end of tag strings
-    let tagsMap = tags.map((tag) => { return tag.trim() })
-    // prevent tags that are all whitespace characters (causes timew error 255)
-    tags = tagsMap.filter((str) => { return (/\S/.test(str)) })
-
-    post('/timewAPI/start',
-      {
-        args: tags
-      },
-      ()=>{
+  let tags = tagsStr.split(',')
+  
+  post('/timewAPI/start',
+    {
+      args: tags
+    },
+    (data)=>{
+      if(data.success) {
         location.reload()
-      })
-  } else {
-    // Tell the user to put in a tag
-    showModal('Error', 'Please give some tags as an array of comma separated values')
-  }
+      } else {
+        showModal("Error", 'Operation failed: '+data.stderr)
+      }
+    })
 }
 
 //Taken from: https://stackoverflow.com/a/17147973
