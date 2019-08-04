@@ -28,7 +28,7 @@ function addTagLinks(body, tags) {
         } else if(tag == '@_time') {
             body = body.replace(/@_time\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g, '')
         } else {
-            body = body.replace(new Regex(tag, 'ig'), `<a href="javascript:searchByTagLink('${tag}')">${tag.replace('@', '')}</a>`)
+            body = body.replace(new RegExp(tag, 'ig'), `<a href="javascript:searchByTagLink('${tag}')">${tag.replace('@', '')}</a>`)
         }
     })
 
