@@ -8,6 +8,17 @@ window.onbeforeunload = function () {
     }
 }
 
+function getCurrentTimeString() {
+    now = new Date();
+    year = "" + now.getFullYear();
+    month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+    day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+    hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+    minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+    second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+    return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+}
+
 var tagLocation = false
 var lat = null
 var lon = null
@@ -60,6 +71,8 @@ function create() {
         entryContent += ` @_location ${lat} ${lon}`
     }
 
+    entryContent += ` @_time ${getCurrentTimeString()}`
+
     postFromButton('submitEntryButton', 'Submitting...', '/jrnlAPI/create',
         {
             entry: entryContent
@@ -67,6 +80,9 @@ function create() {
         (data)=>{
             if (data.success == true) {
                 document.getElementById('compose').value = ''
+                let tagGPS = document.getElementById('tagGPS')
+                tagGPS.checked = false
+                tagCurrentLocation(tagGPS)
                 showModal('Entry added', `<strong>Your entry has been added successfully.</strong><br /><small>stdout: "${data.stdo}" stderr: "${data.stde}"</small>`)
             }
         })
