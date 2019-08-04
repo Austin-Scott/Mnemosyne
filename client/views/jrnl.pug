@@ -60,14 +60,12 @@ block content
       input(type='button', class='btn btn-primary btn-lg btn-block', value='Search', id='searchButton', onclick='search()')
       br/
       br/
-      +tabBar('Cards', 'Timeline', 'Sentiment Analysis')
+      +tabBar('Cards', 'Timeline')
       +beginTabPanel
         +addFirstTab('Cards')
           div(class='row', id='searchResults')
         +addOtherTab('Timeline')
           div(class='timeline-embed', style='width: 100%; height: 600px')
-        +addOtherTab('Sentiment Analysis')
-          canvas(width='700', height='400', id='searchSentimentCanvas', style='background-color:white;width:100%;height:auto')
     +addOtherTab('Statistics')
       h3 Statistics
       input(type='button', class='btn btn-primary btn-lg', value='Request Statistics', id='statisticsButton', onclick='statistics()')

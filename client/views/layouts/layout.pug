@@ -10,21 +10,6 @@ html(lang='en')
       script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
       script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')
   body(style='background-color: black; color: white')
-    nav(class='navbar navbar-inverse')
-      div(class='container-fluid')
-        div(class='navbar-header')
-          button(type='button', class='navbar-toggle collapsed', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
-            span(class='sr-only') Toggle navigation
-            span(class='icon-bar')
-            span(class='icon-bar')
-            span(class='icon-bar')
-          a(class='navbar-brand', href='/') Mnemosyne
-        ul(id='navbar', class='nav navbar-nav navbar-collapse collapse')
-          - let options = [{display: 'jrnl', link: '/jrnl'}, {display: 'Timewarrior', link: '/timew'}, {display: 'Taskwarrior', link: '/taskw'}]
-          each option in options
-            - let isActive = option.display == title
-            li(class=isActive?'active':'')
-              a(href=isActive?'#':option.link) #{option.display}
     +addModalSource
     div(class='container')
       block content

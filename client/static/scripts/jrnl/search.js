@@ -30,58 +30,26 @@ function search() {
             }
 
             let result = ''
-                let entries = data.entries
-                if (entries) {
-                    entries.forEach((entry) => {
-                        result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
-                        result += `<p class="h4">${entry.title}</p>`
-                        result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
-                        result += `<p>${entry.body}</p>`;
-                        result += '</div></div>'
-                    })
-                    document.getElementById('searchResults').innerHTML = result
+            let entries = data.entries
+            if (entries) {
+                entries.forEach((entry) => {
+                    result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
+                    result += `<p class="h4">${entry.title}</p>`
+                    result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
+                    result += `<p>${entry.body}</p>`;
+                    result += '</div></div>'
+                })
+                document.getElementById('searchResults').innerHTML = result
 
-                    let args = {
-                        start_at_end: true,
-                        default_bg_color: { r: 0, g: 0, b: 0 }
-                    }
-                    timeline = new TL.Timeline('timeline-embed', timelineJson(entries), args)
-
-                    if (searchSentimentChart == null) {
-                        searchSentimentChart = new Chart($('#searchSentimentCanvas'), {
-                            type: 'radar',
-                            data: {
-                                labels: ['Anger', 'Anticipation', 'Disgust', 'Fear', 'Joy', 'Sadness', 'Surprise', 'Trust'],
-                                datasets: [radarJson(data, 'results')]
-                            },
-                            options: {
-                                scale: {
-                                    display: true,
-                                    ticks: {
-                                        min: 0,
-                                        max: 1
-                                    }
-                                }
-                            }
-                        })
-                    } else {
-                        searchSentimentChart.data.datasets[0] = radarJson(data, 'results')
-                        searchSentimentChart.update()
-                    }
-
-                    return
+                let args = {
+                    start_at_end: true,
+                    default_bg_color: { r: 0, g: 0, b: 0 }
                 }
-        })
-}
+                timeline = new TL.Timeline('timeline-embed', timelineJson(entries), args)
 
-function radarJson(entries, label) {
-    let data = entries.sentiment.summary
-    return {
-        label: label+` (Polarity: ${data.polarity.toFixed(2)})`,
-        backgroundColor: '#5BC0DE20',
-        borderColor: '#5BC0DE',
-        data: [data.anger, data.anticipation, data.disgust, data.fear, data.joy, data.sadness, data.surprise, data.trust]
-    }
+                return
+            }
+        })
 }
 
 //Converts JSON data returned from search result into format understanded by timeline.js

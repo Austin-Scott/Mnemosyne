@@ -2,14 +2,11 @@ import express from 'express'
 import FuzzySearch from 'fuzzy-search'
 import wordcount from 'wordcount'
 import chalk from 'chalk'
-import fs from 'fs'
 import { spawn } from 'child_process'
 
 import t from '../terminal.js'
 
 const jrnl = new express.Router()
-
-const lexicon = loadLexicon()
 
 /**
 * 
@@ -23,241 +20,6 @@ function spawnjrnl(args) {
     } else {
         return spawn('jrnl', args, { shell: true })
     }
-}
-
-/**
-* @returns {Object} Object with a key for each word in the lexicon.
-*/
-function loadLexicon() {
-    let lexiconStr = ''
-    try {
-        lexiconStr = fs.readFileSync('lexicon.txt', 'ASCII')
-    } catch(err) {
-        console.log('failed to open lexicon.txt: '+err)
-    }
-    let result = {}
-    lexiconStr.split('\n').forEach((line) => {
-        let word = ''
-        line.split(' ').forEach((token, i) => {
-            if (i == 0) {
-                word = token
-                result[word] = {
-                    anger: false,
-                    anticipation: false,
-                    disgust: false,
-                    fear: false,
-                    joy: false,
-                    negative: false,
-                    positive: false,
-                    sadness: false,
-                    surprise: false,
-                    trust: false
-                }
-            } else {
-                switch (token) {
-                    case 'ang':
-                    result[word].anger = true
-                    break
-                    case 'ant':
-                    result[word].anticipation = true
-                    break
-                    case 'd':
-                    result[word].disgust = true
-                    break
-                    case 'f':
-                    result[word].fear = true
-                    break
-                    case 'j':
-                    result[word].joy = true
-                    break
-                    case 'n':
-                    result[word].negative = true
-                    break
-                    case 'p':
-                    result[word].positive = true
-                    break
-                    case 'sa':
-                    result[word].sadness = true
-                    break
-                    case 'su':
-                    result[word].surprise = true
-                    break
-                    case 't':
-                    result[word].trust = true
-                    break
-                }
-            }
-        })
-    })
-    return result
-}
-
-/**
-* 
-* @param {String} word Word to check if exists in the lexicon.
-* @param {Object} result Object containing the list of different sentiments and their hit counts.
-* @returns {Object} Result but modified with the results of the lexicon search. 
-*/
-function analyzeSentimentWord(word, result) {
-    word = word.toLowerCase()
-    if (!('data' in result)) {
-        result.data = {
-            matches: 0,
-            anger: 0,
-            anticipation: 0,
-            disgust: 0,
-            fear: 0,
-            joy: 0,
-            negative: 0,
-            positive: 0,
-            sadness: 0,
-            surprise: 0,
-            trust: 0
-        }
-    }
-    if (lexicon.hasOwnProperty(word)) {
-        let wordData = lexicon[word]
-        result.data.matches++
-        if (wordData.anger)
-        result.data.anger++
-        if (wordData.anticipation)
-        result.data.anticipation++
-        if (wordData.disgust)
-        result.data.disgust++
-        if (wordData.fear)
-        result.data.fear++
-        if (wordData.joy)
-        result.data.joy++
-        if (wordData.negative)
-        result.data.negative++
-        if (wordData.positive)
-        result.data.positive++
-        if (wordData.sadness)
-        result.data.sadness++
-        if (wordData.surprise)
-        result.data.surprise++
-        if (wordData.trust)
-        result.data.trust++
-    }
-    return result
-}
-
-/**
-* 
-* @param {Array} words Array of string of the words that you want to be analyzed.
-* @returns {Object} Object containing the results of the lexicon search. 
-*/
-function analyzeSentimentWords(words) {
-    let result = {
-        data: {
-            matches: 0,
-            anger: 0,
-            anticipation: 0,
-            disgust: 0,
-            fear: 0,
-            joy: 0,
-            negative: 0,
-            positive: 0,
-            sadness: 0,
-            surprise: 0,
-            trust: 0
-        }
-    }
-    words.forEach((word) => {
-        result = analyzeSentimentWord(word, result)
-    })
-    return result
-}
-
-/**
-* 
-* @param {Object} res1 Sentiment analysis search result object
-* @param {Object} res2 Sentiment analysis search result object
-* @returns {Object} re1 and re2 merged together
-*/
-function addSentimentResults(res1, res2) {
-    let result = {
-        data: {
-            matches: 0,
-            anger: 0,
-            anticipation: 0,
-            disgust: 0,
-            fear: 0,
-            joy: 0,
-            negative: 0,
-            positive: 0,
-            sadness: 0,
-            surprise: 0,
-            trust: 0
-        }
-    }
-    result.data.matches = res1.data.matches + res2.data.matches
-    result.data.anger = res1.data.anger + res2.data.anger
-    result.data.anticipation = res1.data.anticipation + res2.data.anticipation
-    result.data.disgust = res1.data.disgust + res2.data.disgust
-    result.data.fear = res1.data.fear + res2.data.fear
-    result.data.joy = res1.data.joy + res2.data.joy
-    result.data.negative = res1.data.negative + res2.data.negative
-    result.data.positive = res1.data.positive + res2.data.positive
-    result.data.sadness = res1.data.sadness + res2.data.sadness
-    result.data.surprise = res1.data.surprise + res2.data.surprise
-    result.data.trust = res1.data.trust + res2.data.trust
-    
-    return result
-}
-
-/**
-* 
-* @param {Number} x Number between 0 and 1 to be modified with sentiment normalization curve
-* @returns {Number} The normalized value.
-*/
-function sentimentNormalization(x) {
-    if (x <= 0.0)
-    return 0.0
-    if (x >= 1.0)
-    return 1.0
-    return (Math.pow(0.04, x) - 1.0) / (-0.96)
-}
-/**
-* 
-* @param {Object} result Sentiment analysis search result object 
-* @param {Function} funct Sentiment normalization function
-* @returns {Object} Sentiment analysis search result object with summary information.
-*/
-function computeSentimentSummary(result, funct) {
-    result.summary = {
-        polarity: 0,
-        anger: 0,
-        anticipation: 0,
-        disgust: 0,
-        fear: 0,
-        joy: 0,
-        sadness: 0,
-        surprise: 0,
-        trust: 0
-    }
-    if (result.data.matches > 0) {
-        result.summary.polarity = funct(result.data.positive / result.data.matches) - funct(result.data.negative / result.data.matches)
-        result.summary.anger = funct(result.data.anger / result.data.matches)
-        result.summary.anticipation = funct(result.data.anticipation / result.data.matches)
-        result.summary.disgust = funct(result.data.disgust / result.data.matches)
-        result.summary.fear = funct(result.data.fear / result.data.matches)
-        result.summary.joy = funct(result.data.joy / result.data.matches)
-        result.summary.sadness = funct(result.data.sadness / result.data.matches)
-        result.summary.surprise = funct(result.data.surprise / result.data.matches)
-        result.summary.trust = funct(result.data.trust / result.data.matches)
-    }
-    return result
-}
-
-/**
-* 
-* @param {String} str Paragraph text that needs to be splitted into and array of individual words.
-* @returns {Array} Array of strings of the individual words from str.
-*/
-function splitIntoWords(str) {
-    let a = str.match(/\b(\w+)'?(\w+)?\b/g)
-    return a !== null ? a : []
 }
 
 /**
@@ -410,7 +172,6 @@ jrnl.post('/search', (req, res) => {
     
     args.push('--export', 'json')
     
-    
     t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
         try {
             let entries = JSON.parse(stdout)
@@ -420,15 +181,6 @@ jrnl.post('/search', (req, res) => {
                 const end = num > results.length ? results.length : num
                 entries.entries = limitByNum == 'true' ? results.slice(0, end) : results.length
             }
-            
-            let overallSentiment = null
-            entries.entries = entries.entries.map((entry) => {
-                entry.sentiment = computeSentimentSummary(addSentimentResults(analyzeSentimentWords(splitIntoWords(entry.title)), analyzeSentimentWords(splitIntoWords(entry.body))), sentimentNormalization)
-                overallSentiment = overallSentiment !== null ? addSentimentResults(overallSentiment, entry.sentiment) : entry.sentiment
-                return entry
-            })
-            
-            entries.sentiment = computeSentimentSummary(overallSentiment, sentimentNormalization)
             
             res.json(entries)
             

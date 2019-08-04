@@ -5,10 +5,6 @@ import fs from 'fs'
 import path from 'path'
 
 import jrnl from './routers/jrnl'
-import taskw, { getSpecificTask } from './routers/taskw'
-import { getAllTasks } from './routers/taskw'
-import timew from './routers/timew'
-import { getAllTimers } from './routers/timew'
 
 const app = express()
 
@@ -44,32 +40,10 @@ app.use((req, res, next) => {
 
 //Respond to AJAX API requests
 app.use('/jrnlAPI', jrnl)
-app.use('/taskwAPI', taskw)
-app.use('/timewAPI', timew)
 
 //Render views
 app.get('/', (req, res)=>{
-    res.render('index', {title: 'Mnemosyne'})
-})
-app.get('/jrnl', (req, res)=>{
-    res.render('jrnl', {title: 'jrnl'})
-})
-app.get('/taskw', (req, res)=>{
-    getAllTasks().then((taskList)=>{
-        res.render('taskw', {title: 'Taskwarrior', tasks: taskList.pending, allTasks: taskList.all})
-    })
-})
-app.get('/taskw/:uuid', (req, res) => {
-    getSpecificTask(req.params.uuid).then((task) => {
-        res.render('taskwTask', {title: task.description, task: task})
-    }).catch((err) => {
-        res.send(err.toString())
-    })
-})
-app.get('/timew', (req, res)=>{
-    getAllTimers().then((allTimers) => {
-        res.render('timew', {title: 'Timewarrior', timers: allTimers})
-    })
+    res.render('jrnl', {title: 'Mnemosyne'})
 })
 
 //Serve static files
