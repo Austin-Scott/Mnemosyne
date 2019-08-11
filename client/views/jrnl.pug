@@ -12,8 +12,8 @@ block content
   +tabBar('Create', 'Search', 'Statistics')
   +beginTabPanel
     +addFirstTab('Create')
-      h3 Create new entry
-      textarea(class='form-control', rows='10', placeholder='Write something here...', id='compose', style='background-color: #4e535b; color: white; font-size: 18px;')
+      h3 #{greeting}
+      textarea(class='form-control', rows='10', placeholder=prompt, id='compose', style='background-color: #4e535b; color: white; font-size: 18px;')
       br/
       br/
       hr/
@@ -65,7 +65,7 @@ block content
         +addFirstTab('Cards')
           div(class='row', id='searchResults')
         +addOtherTab('Timeline')
-          div(class='timeline-embed', style='width: 100%; height: 600px')
+          div(id='timeline-embed', style='width: 100%; height: 600px')
     +addOtherTab('Statistics')
       h3 Statistics
       input(type='button', class='btn btn-primary btn-lg', value='Request Statistics', id='statisticsButton', onclick='statistics()')

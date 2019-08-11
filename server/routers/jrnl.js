@@ -130,70 +130,76 @@ jrnl.get('/statistics', (req, res) => {
     
 })
 
+function searchJrnl(query) {
+    return new Promise((resolve, reject)=>{
+        let terms = query.terms || ''
+        let limitByNum = query.limitByNum || 'true'
+        let num = query.num || 1
+        let starred = query.starred || 'false'
+        let tags = query.tags || ''
+        let useAnd = query.useAnd || 'false'
+        let filterEarlier = query.filterEarlier || ''
+        let filterLater = query.filterLater || ''
+        
+        let useSearch = (terms !== '')
+        
+        let args = []
+        if (!useSearch && limitByNum == 'true') {
+            args.push('-n', num)
+        }
+        if (starred == 'true') {
+            args.push('-starred')
+        }
+        if (filterEarlier !== '') {
+            args.push('-from', t.escapeBashCharacters(filterEarlier))
+        }
+        if (filterLater !== '') {
+            args.push('-until', t.escapeBashCharacters(filterLater))
+        }
+        if (useAnd == 'true') {
+            args.push('-and')
+        }
+        
+        tags = tags.split(' ');
+        tags.forEach((tag) => {
+            if (tag !== '')
+            args.push(t.escapeBashCharacters(tag))
+        })
+        
+        args.push('--export', 'json')
+        
+        t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
+            try {
+                let entries = JSON.parse(stdout)
+                if (useSearch) {
+                    const searcher = new FuzzySearch(entries.entries, ['title', 'body'], { sort: true })
+                    const results = searcher.search(terms)
+                    const end = num > results.length ? results.length : num
+                    entries.entries = limitByNum == 'true' ? results.slice(0, end) : results.length
+                }
+                resolve(entries)
+            } catch(err) {
+                console.log(chalk.red('Error: '+err))
+                reject(err)
+            }
+            
+        })
+    })
+}
+
 /**
 * Handle search jrnl request
 */
 jrnl.post('/search', (req, res) => {
     console.log('jrnl search request received')
-    
-    let terms = req.body.terms || ''
-    let limitByNum = req.body.limitByNum || 'true'
-    let num = req.body.num || 1
-    let starred = req.body.starred || 'false'
-    let tags = req.body.tags || ''
-    let useAnd = req.body.useAnd || 'false'
-    let filterEarlier = req.body.filterEarlier || ''
-    let filterLater = req.body.filterLater || ''
-    
-    let useSearch = (terms !== '')
-    
-    let args = []
-    if (!useSearch && limitByNum == 'true') {
-        args.push('-n', num)
-    }
-    if (starred == 'true') {
-        args.push('-starred')
-    }
-    if (filterEarlier !== '') {
-        args.push('-from', t.escapeBashCharacters(filterEarlier))
-    }
-    if (filterLater !== '') {
-        args.push('-until', t.escapeBashCharacters(filterLater))
-    }
-    if (useAnd == 'true') {
-        args.push('-and')
-    }
-    
-    tags = tags.split(' ');
-    tags.forEach((tag) => {
-        if (tag !== '')
-        args.push(t.escapeBashCharacters(tag))
-    })
-    
-    args.push('--export', 'json')
-    
-    t.terminal(spawnjrnl(args), (stdout, stderr, code) => {
-        try {
-            let entries = JSON.parse(stdout)
-            if (useSearch) {
-                const searcher = new FuzzySearch(entries.entries, ['title', 'body'], { sort: true })
-                const results = searcher.search(terms)
-                const end = num > results.length ? results.length : num
-                entries.entries = limitByNum == 'true' ? results.slice(0, end) : results.length
-            }
-            
-            res.json(entries)
-            
-            console.log('Search results sent')
-        } catch(err) {
-            console.log(chalk.red('Error: '+err))
-            res.json({
-                success: false,
-                stdout: '',
-                stderr: err.toString()
-            })
-        }
-        
+    searchJrnl(req.body).then(entries => {
+        res.json(entries)
+    }, err => {
+        res.json({
+            success: false,
+            stdout: '',
+            stderr: err.toString()
+        })
     })
 })
 

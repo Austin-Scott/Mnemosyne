@@ -43,7 +43,23 @@ app.use('/jrnlAPI', jrnl)
 
 //Render views
 app.get('/', (req, res)=>{
-    res.render('jrnl', {title: 'Mnemosyne'})
+    let hours = new Date().getHours()
+    let greeting = ''
+    let prompt = ''
+    if(hours < 5) {
+        greeting = 'Early Morning'
+        prompt = 'What\'s on your mind?'
+    } else if(hours < 12) {
+        greeting = 'Good Morning'
+        prompt = 'What do you plan to accomplish today?'
+    } else if(hours < 17) {
+        greeting = 'Good Afternoon'
+        prompt = 'What have you been doing?'
+    } else {
+        greeting = 'Good Evening'
+        prompt = 'What did you do today?'
+    }
+    res.render('jrnl', {title: 'Mnemosyne', greeting: greeting, prompt: prompt})
 })
 
 //Serve static files
