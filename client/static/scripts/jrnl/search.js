@@ -44,15 +44,17 @@ function processTags(body, tags, links = true) {
 }
 
 function createCards(entries, tags) {
-    let result = ''
+    let result = ['']
     entries.forEach((entry) => {
-        result += '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">'
-        result += `<p class="h4">${processTags(entry.title, tags)}</p>`
-        result += `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>`
-        result += `<p>${processTags(entry.body, tags)}</p>`
-        result += '</div></div>'
+        result.push(
+            '<div class="col-lg-3 col-md-4 col-sm-6 col-12"><div class="panel panel-default" style="background-color: #414141">' +
+            `<p class="h4">${processTags(entry.title, tags)}</p>` +
+            `<p><strong>${entry.date + '&nbsp;' + entry.time}</strong></p>` +
+            `<p>${processTags(entry.body, tags)}</p>` +
+            '</div></div>'
+        )
     })
-    return result
+    return result.reverse().join('')
 }
 
 //Performs a search of journal entries via AJAX
