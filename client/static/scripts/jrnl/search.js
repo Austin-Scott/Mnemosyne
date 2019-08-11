@@ -20,7 +20,7 @@ function searchByTagLink(tag) {
                 `<p>${processTags(entry.body, tags)}</p>`
             )
         })
-        showModal(`Recent entries`, result.join('<hr/>'))
+        showModal(`Recent entries`, result.reverse().join('<hr/>'))
     })
 }
 
