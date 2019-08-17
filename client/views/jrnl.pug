@@ -3,8 +3,6 @@ include includes/tabs.pug
 include includes/collapse.pug
 
 block append cdn
-  link(title='timeline-styles', rel='stylesheet', href='https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css')
-  script(src='https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js')
 
@@ -13,36 +11,31 @@ block content
   +beginTabPanel
     +addFirstTab('Create')
       h3 #{greeting}
-      textarea(class='form-control', rows='10', placeholder=prompt, id='compose', style='background-color: #4e535b; color: white; font-size: 18px;')
+      textarea(class='form-control', rows='15', placeholder=prompt, id='compose', style='background-color: #000000; color: white; font-size: 18px;')
       br/
-      br/
-      hr/
       label
         input(type='checkbox', value='', id='tagGPS', onclick='tagCurrentLocation(this)')
         | Tag current location
       div(id='gpsText')
-      hr/
+      br/
       input(type='button', class='btn btn-primary btn-lg btn-block', value='Submit Entry', id='submitEntryButton', onclick='create()')
     +addOtherTab('Search')
-      h3 Search
+      br/
       form(action='javascript:;', onsubmit='search()', id='searchForm')
-        label(for='terms') Please enter search terms:
-        input(type='text', class='form-control', placeholder='World domination', id='terms')
-        hr/
-        label
-          input(type='checkbox', value='', id='limitByNum', checked)
-          | Limit number of results returned
-        br/
-        label(for='num') Number of results:
-        input(class='form-control', type='number', value='5', min='1', id='num')
-        hr/
-        +collapsePanel('advancedOps', 'Show/Hide advanced options')
+        +collapsePanel('advancedOps', 'Advanced Options')
+          label
+            input(type='checkbox', value='', id='limitByNum', checked)
+            | Limit number of results returned
+          br/
+          label(for='num') Number of results:
+          input(class='form-control', type='number', value='10', min='1', id='num', style='background-color: #000000; color: white')
+          hr/
           label
             input(type='checkbox', value='', id='starred')
             | Show only starred entries
           hr/
           label(for='tags') Please enter tags to filter by:
-          input(type='text', class='form-control', placeholder='@tagOne @tagTwo', id='tags')
+          input(type='text', class='form-control', placeholder='tagOne tagTwo', id='tags', style='background-color: #000000; color: white')
           span
             label
               input(type='radio', name='optandor', value='', checked)
@@ -52,20 +45,19 @@ block content
               | and
           hr/
           label(for='from') Filter earlier than:
-          input(type='text', class='form-control', placeholder='last monday', id='filterEarlier')
+          input(type='text', class='form-control', placeholder='last monday', id='filterEarlier', style='background-color: #000000; color: white')
           label(for='until') Filter later than:
-          input(type='text', class='form-control', placeholder='2 march 2012', id='filterLater')
-        hr/
+          input(type='text', class='form-control', placeholder='2 march 2012', id='filterLater', style='background-color: #000000; color: white')
+        input(class='form-control input-lg', placeholder='World domination', id='terms', style='background-color: #000000; color: white')
+        br/
+        input(type='button', class='btn btn-primary btn-lg btn-block', value='Search', id='searchButton', onclick='search()')
       br/
-      input(type='button', class='btn btn-primary btn-lg btn-block', value='Search', id='searchButton', onclick='search()')
-      br/
-      br/
-      +tabBar('Cards', 'Timeline')
+      +tabBar('Entries', 'Map')
       +beginTabPanel
-        +addFirstTab('Cards')
-          div(class='row', id='searchResults')
-        +addOtherTab('Timeline')
-          div(id='timeline-embed', style='width: 100%; height: 600px')
+        +addFirstTab('Entries')
+          div(id='searchResults')
+        +addOtherTab('Map')
+          h3 Coming soon!
     +addOtherTab('Statistics')
       h3 Statistics
       input(type='button', class='btn btn-primary btn-lg', value='Request Statistics', id='statisticsButton', onclick='statistics()')

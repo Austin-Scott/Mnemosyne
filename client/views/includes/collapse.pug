@@ -1,9 +1,7 @@
 mixin collapsePanel(name, description)
   .panel-group
     div(class='panel panel-default')
-      .panel-heading
-        h4(class='panel-title')
-          a(data-toggle='collapse', href='#'+name.replace(' ', '-')+'Panel') #{description}
+      input(type='button', class='btn btn-block', value='Advanced Options', data-toggle='collapse', data-target='#'+name.replace(' ', '-')+'Panel', style='background-color: #000000; color: #337ab7')
       div(id=name.replace(' ', '-')+'Panel', class='panel-collapse collapse')
         div(class='panel-body', style='background-color: black')
           block
