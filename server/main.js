@@ -19,6 +19,11 @@ app.set('view engine', 'pug')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+//Don't require authentication to send site manifest
+app.get('/images/site.webmanifest', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/static/images/site.webmanifest'))
+})
+
 //Check username and password of client
 // Modified from code found here: https://stackoverflow.com/a/33905671
 app.use((req, res, next) => {
