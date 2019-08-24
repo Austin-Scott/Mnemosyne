@@ -15,7 +15,11 @@ const jrnl = new express.Router()
 */
 function spawnjrnl(args) {
     console.log(chalk.blueBright('jrnl '+args.join(' ')))
-    return spawn('jrnl', args, { shell: true })
+    if (process.platform == 'linux') {
+        return spawn('jrnl', args, { shell: true, env: { HOME: t.home } })
+    } else {
+        return spawn('jrnl', args, { shell: true })
+    }
 }
 
 /**
