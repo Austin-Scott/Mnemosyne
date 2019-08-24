@@ -55,7 +55,7 @@ function search(params, returnResult = false) {
             limitByNum: document.getElementById('limitByNum').checked,
             num: document.getElementById('num').value,
             starred: document.getElementById('starred').checked,
-            tags: document.getElementById('tags').value.split(' ').map(tag => { return '@'+tag }).join(' '),
+            tags: document.getElementById('tags').value.split(' ').map(tag => { if(tag!='') { return '@'+tag } else { return '' } }).join(' '),
             useAnd: document.getElementById('useAnd').checked,
             filterEarlier: document.getElementById('filterEarlier').value,
             filterLater: document.getElementById('filterLater').value
