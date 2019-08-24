@@ -17,22 +17,21 @@ function searchByTagLink(tag) {
 }
 
 function processTags(body, tags, links = true) {
-    tags.forEach(tag => {
-        if(tag == '@_location') {
-            body = body.replace(/@_location\s[-\d\.]+\s[-\d\.]+/g, '')
-        } else if(tag == '@_time') {
-            body = body.replace(/@_time\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g, '')
-        } else {
-            tag = tag.replace('@', '')
-            if(links) {
-                body = body.replace(new RegExp(`@(${tag})`, 'ig'), `<a href="javascript:searchByTagLink('@${tag}')">$1</a>`)
-            } else {
-                body = body.replace(new RegExp(`@(${tag})`, 'ig'), `$1`)
-            }
-        }
+    //Remove meta tags
+    body = body.replace(/@_location\s[-\d\.]+\s[-\d\.]+/g, '')
+    body = body.replace(/@_time\s\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}/g, '')
+
+    tags = tags.map(tag => {
+        return tag.replace('@', '')
     })
 
-    return body
+    let regex = new RegExp(`@(\\b${tags.join('\\b|\\b')}\\b)`, 'ig')
+
+    if(links) {
+        return body.replace(regex, `<a href="javascript:searchByTagLink('@$1')">$1</a>`)
+    } else {
+        return body.replace(regex, `$1`)
+    }
 }
 
 function printEntries(entries, tags) {
@@ -56,7 +55,7 @@ function search(params, returnResult = false) {
             limitByNum: document.getElementById('limitByNum').checked,
             num: document.getElementById('num').value,
             starred: document.getElementById('starred').checked,
-            tags: document.getElementById('tags').value,
+            tags: document.getElementById('tags').value.split(' ').map(tag => { return '@'+tag }).join(' '),
             useAnd: document.getElementById('useAnd').checked,
             filterEarlier: document.getElementById('filterEarlier').value,
             filterLater: document.getElementById('filterLater').value
