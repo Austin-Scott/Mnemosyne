@@ -5,6 +5,8 @@ include includes/collapse.pug
 block append cdn
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js')
+  link(rel='stylesheet', href='https://unpkg.com/leaflet@1.5.1/dist/leaflet.css', integrity='sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==', crossorigin='')
+  script(src='https://unpkg.com/leaflet@1.5.1/dist/leaflet.js', integrity='sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==', crossorigin='')
 
 block content
   +tabBar('Create', 'Search', 'Statistics')
@@ -57,7 +59,7 @@ block content
         +addFirstTab('Entries')
           div(id='searchResults')
         +addOtherTab('Map')
-          h3 Coming soon!
+          div(id='mapArea', style='height: 500px')
     +addOtherTab('Statistics')
       h3 Statistics
       input(type='button', class='btn btn-primary btn-lg', value='Request Statistics', id='statisticsButton', onclick='statistics()')

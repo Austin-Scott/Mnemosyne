@@ -81,10 +81,59 @@ function search(params, returnResult = false) {
             let entries = data.entries
             if (entries) {
                 document.getElementById('searchResults').innerHTML = printEntries(entries, tags)
-                //TODO: Add map code here
+                
+                removeMarkers()
+                let markers = entries.map(entry => { return createMarker(entry, tags) })
+                markers = markers.filter(marker => marker != null)
+                markers.forEach(marker => { addMarker(marker) })
+                centerMap(markers)
+
                 resolve(data)
                 return
             }
         })
     })
 }
+
+var mapArea = L.map('mapArea').setView([51.505, -0.09], 13)
+L.tileLayer(
+    'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+    {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 18
+    }
+).addTo(mapArea)
+var mapMarkers = L.layerGroup().addTo(mapArea)
+
+function removeMarkers() {
+    mapMarkers.clearLayers()
+}
+
+function createMarker(entry, tags) {
+    let locationParser = /@_location\s([-\d\.]+)\s([-\d\.]+)/g
+    let matches = locationParser.exec(entry.body)
+    if(matches == null) return null
+
+    return {
+        title: processTags(entry.body, tags, false),
+        latlon: [
+            Number(matches[1]),
+            Number(matches[2])
+        ]
+    }
+}
+
+function addMarker(marker) {
+    let mapMarker = L.marker(marker.latlon)
+    mapMarker.bindPopup(marker.title)
+    mapMarker.addTo(mapMarkers)
+}
+
+function centerMap(markers) {
+    if(markers.length == 0) return
+    mapArea.fitBounds(markers.map(marker => { return marker.latlon }))
+}
+
+$(document).on('shown.bs.tab', 'a[data-toggle="tab"]', () => {
+    mapArea.invalidateSize()
+})
