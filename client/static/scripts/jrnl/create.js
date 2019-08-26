@@ -27,6 +27,7 @@ function tagCurrentLocation(cb) {
     let textOutputArea = document.getElementById('gpsText')
     if (cb.checked) {
         if (navigator.geolocation) {
+            textOutputArea.innerHTML = '<span class="text-info">Acquiring your current location...</span>'
             navigator.geolocation.getCurrentPosition((pos) =>{
                 lat = pos.coords.latitude
                 lon = pos.coords.longitude
@@ -36,21 +37,25 @@ function tagCurrentLocation(cb) {
                 tagLocation = false
                 switch (err.code) {
                     case err.PERMISSION_DENIED:
-                        textOutputArea.innerHTML = '<span class="text-warning">Geolocation permission denied</span>'
+                        textOutputArea.innerHTML = '<span class="text-danger">Geolocation permission denied</span>'
                         break
                     case err.POSITION_UNAVAILABLE:
-                        textOutputArea.innerHTML = '<span class="text-warning">Location unavailable</span>'
+                        textOutputArea.innerHTML = '<span class="text-danger">Location unavailable</span>'
                         break
                     case err.TIMEOUT:
-                        textOutputArea.innerHTML = '<span class="text-warning">Geolocation request timed out</span>'
+                        textOutputArea.innerHTML = '<span class="text-danger">Geolocation request timed out</span>'
                         break
                     case err.UNKNOWN_ERROR:
-                        textOutputArea.innerHTML = '<span class="text-warning">An unknown error occurred</span>'
+                        textOutputArea.innerHTML = '<span class="text-danger">An unknown error occurred</span>'
                         break
                 }
+            }, {
+                maximumAge: 10000,
+                timeout: 10000,
+                enableHighAccuracy: true
             })
         } else {
-            textOutputArea.innerHTML='<span class="text-warning">Geolocation is not supported by your browser</span>'
+            textOutputArea.innerHTML='<span class="text-danger">Geolocation is not supported by your browser</span>'
         }
     } else {
         tagLocation=false
