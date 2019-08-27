@@ -35,6 +35,7 @@ function tagCurrentLocation(cb) {
                 textOutputArea.innerHTML = `<span class="text-success">Latitude: ${lat} Longitude: ${lon}</span>`
             }, (err) =>{
                 tagLocation = false
+                cb.checked = false
                 switch (err.code) {
                     case err.PERMISSION_DENIED:
                         textOutputArea.innerHTML = '<span class="text-danger">Geolocation permission denied</span>'

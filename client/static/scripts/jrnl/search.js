@@ -115,7 +115,9 @@ function createMarker(entry, tags) {
     if(matches == null) return null
 
     return {
-        title: processTags(entry.body, tags, false),
+        entry: `<h4>${processTags(entry.title, tags)}</h4>`
+                + `<p><small>${entry.date + '&nbsp;' + entry.time}</small></p>`
+                + `<p>${processTags(entry.body, tags)}</p>`,
         latlon: [
             Number(matches[1]),
             Number(matches[2])
@@ -125,7 +127,7 @@ function createMarker(entry, tags) {
 
 function addMarker(marker) {
     let mapMarker = L.marker(marker.latlon)
-    mapMarker.bindPopup(marker.title)
+    mapMarker.bindPopup(marker.entry)
     mapMarker.addTo(mapMarkers)
 }
 
