@@ -2,8 +2,10 @@
   "name": "jrnl-web-interface",
   "version": "1.0.0",
   "description": "Web interface for jrnl.sh",
-  "main": "main.js",
+  "main": "server/main.js",
   "scripts": {
+    "start": "babel-node ./server/main.js",
+    "watch": "nodemon --exec babel-node ./server/main.js --watch ./server/**/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,7 +19,15 @@
   },
   "homepage": "https://github.com/Austin-Scott/jrnl-Web-Interface#readme",
   "dependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.3",
+    "chalk": "^2.4.2",
     "express": "^4.16.4",
-    "fuzzy-search": "^3.0.1"
+    "fuzzy-search": "^3.0.1",
+    "nodemon": "^1.18.11",
+    "pug": "^2.0.3",
+    "wordcount": "^1.1.1"
   }
 }

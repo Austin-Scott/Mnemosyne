@@ -1,0 +1,8 @@
+/* taken from: https://stackoverflow.com/a/15643174 */
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: #424242;
+}
+
+#startTimerBtn {
+    margin-left: 2.5%;
+}

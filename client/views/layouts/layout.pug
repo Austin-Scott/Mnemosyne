@@ -1,0 +1,20 @@
+include ../includes/modal.pug
+doctype html
+html(lang='en')
+  head
+    title #{title}
+    include ../includes/meta.pug
+    block cdn
+      link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css')
+      link(rel='stylesheet', href='/style.css')
+      script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+      script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')
+  body(style='background-color: black; color: white')
+    +addModalSource
+    div(class='container')
+      block content
+        p This is the default content.
+    script(src='/scripts/ajax/ajax.js')
+    block scripts
+      +addModalCode
+      

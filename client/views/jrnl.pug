@@ -1,0 +1,86 @@
+extends layouts/layout.pug
+include includes/tabs.pug
+include includes/collapse.pug
+
+block append cdn
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js')
+  link(rel='stylesheet', href='https://unpkg.com/leaflet@1.5.1/dist/leaflet.css', integrity='sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==', crossorigin='')
+  script(src='https://unpkg.com/leaflet@1.5.1/dist/leaflet.js', integrity='sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==', crossorigin='')
+
+block content
+  +tabBar('Create', 'Search', 'Statistics')
+  +beginTabPanel
+    +addFirstTab('Create')
+      h3 #{greeting}
+      textarea(class='form-control', rows='15', placeholder=prompt, id='compose', style='background-color: #000000; color: white; font-size: 18px;')
+      br/
+      label
+        input(type='checkbox', value='', id='tagGPS', onclick='tagCurrentLocation(this)')
+        | Tag current location
+      div(id='gpsText')
+      br/
+      input(type='button', class='btn btn-primary btn-lg btn-block', value='Submit Entry', id='submitEntryButton', onclick='create()')
+    +addOtherTab('Search')
+      br/
+      form(action='javascript:;', onsubmit='search()', id='searchForm')
+        +collapsePanel('advancedOps', 'Advanced Options')
+          label
+            input(type='checkbox', value='', id='limitByNum', checked)
+            | Limit number of results returned
+          br/
+          label(for='num') Number of results:
+          input(class='form-control', type='number', value='10', min='1', id='num', style='background-color: #000000; color: white')
+          hr/
+          label
+            input(type='checkbox', value='', id='starred')
+            | Show only starred entries
+          hr/
+          label(for='tags') Please enter tags to filter by:
+          input(type='text', class='form-control', placeholder='tagOne tagTwo', id='tags', style='background-color: #000000; color: white')
+          span
+            label
+              input(type='radio', name='optandor', value='', checked)
+              | or&nbsp;&nbsp;
+            label
+              input(type='radio', name='optandor', id='useAnd')
+              | and
+          hr/
+          label(for='from') Filter earlier than:
+          input(type='text', class='form-control', placeholder='last monday', id='filterEarlier', style='background-color: #000000; color: white')
+          label(for='until') Filter later than:
+          input(type='text', class='form-control', placeholder='2 march 2012', id='filterLater', style='background-color: #000000; color: white')
+        input(class='form-control input-lg', placeholder='World domination', id='terms', style='background-color: #000000; color: white')
+        br/
+        input(type='button', class='btn btn-primary btn-lg btn-block', value='Search', id='searchButton', onclick='search()')
+      br/
+      +tabBar('Entries', 'Map')
+      +beginTabPanel
+        +addFirstTab('Entries')
+          div(id='searchResults')
+        +addOtherTab('Map')
+          div(id='mapArea', style='height: 500px')
+    +addOtherTab('Statistics')
+      h3 Statistics
+      input(type='button', class='btn btn-primary btn-lg', value='Request Statistics', id='statisticsButton', onclick='statistics()')
+      div(id='statsArea')
+      hr/
+      +tabBar('Month', 'Year', 'Ten Years')
+      +beginTabPanel
+        +addFirstTab('Month')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Next', id='byMonthNext', onclick='monthChartOffset++;updateMonthChart()')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Previous', id='byMonthPrevious', onclick='monthChartOffset--;updateMonthChart()')
+          canvas(width='700', height='400', id='monthCanvas', style='background-color:black;width:100%;height:auto')
+        +addOtherTab('Year')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Next', id='byYearNext', onclick='yearChartOffset++;updateYearChart()')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Previous', id='byYearPrevious', onclick='yearChartOffset--;updateYearChart()')
+          canvas(width='700', height='400', id='yearCanvas', style='background-color:black;width:100%;height:auto')
+        +addOtherTab('Ten Years')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Next', id='byYearsNext', onclick='yearsChartOffset++;updateYearsChart()')
+          input(type='button', class='btn btn-primary btn-lg pull-right', value='Previous', id='byYearsPrevious', onclick='yearsChartOffset--;updateYearsChart()')
+          canvas(width='700', height='400', id='yearsCanvas', style='background-color:black;width:100%;height:auto')
+
+block append scripts
+  script(src='scripts/jrnl/create.js')
+  script(src='scripts/jrnl/search.js')
+  script(src='scripts/jrnl/statistics.js')
